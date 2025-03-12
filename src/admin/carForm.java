@@ -55,7 +55,7 @@ public class carForm extends javax.swing.JFrame {
         try {
             dbConnector dbc = new dbConnector();
             // Select only from tbl_cars
-            ResultSet rs = dbc.getData("SELECT c_id, c_name, c_model, c_price, quantity, c_status FROM tbl_cars");
+            ResultSet rs = dbc.getData("SELECT c_id, c_name, c_model, c_price, c_quantity, c_status FROM tbl_cars");
             // Update the table model with the new result set
             carsTable.setModel(DbUtils.resultSetToTableModel(rs));
             rs.close();
@@ -439,7 +439,7 @@ if (cid.getText().isEmpty()) {
         int currentQty = 0;
         String existingImagePath = "";
         try {
-            ResultSet rs = dbc.getData("SELECT quantity, c_image FROM tbl_cars WHERE c_id = '" + cid.getText() + "'");
+            ResultSet rs = dbc.getData("SELECT c_quantity, c_image FROM tbl_cars WHERE c_id = '" + cid.getText() + "'");
             if (rs.next()) {
                 currentQty = rs.getInt("quantity");
                 existingImagePath = rs.getString("c_image");

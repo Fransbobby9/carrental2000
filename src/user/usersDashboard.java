@@ -139,7 +139,7 @@ public class usersDashboard extends javax.swing.JFrame {
         jLabel9.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
         jLabel9.setIcon(new javax.swing.ImageIcon(getClass().getResource("/images/icons8-user-50.png"))); // NOI18N
         u_name.add(jLabel9);
-        jLabel9.setBounds(11, 0, 80, 50);
+        jLabel9.setBounds(11, 0, 80, 60);
 
         jLabel10.setFont(new java.awt.Font("Tahoma", 1, 14)); // NOI18N
         jLabel10.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);

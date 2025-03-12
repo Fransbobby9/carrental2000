@@ -117,6 +117,7 @@ public class customerForm extends javax.swing.JFrame {
 
             }
         ));
+        oTable.setToolTipText("");
         oTable.addMouseListener(new java.awt.event.MouseAdapter() {
             public void mouseClicked(java.awt.event.MouseEvent evt) {
                 oTableMouseClicked(evt);
@@ -188,7 +189,9 @@ public class customerForm extends javax.swing.JFrame {
     }// </editor-fold>//GEN-END:initComponents
 
     private void jLabel2MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jLabel2MouseClicked
-
+       usersDashboard ads = new usersDashboard();
+        ads.setVisible(true);
+        this.dispose();     
     }//GEN-LAST:event_jLabel2MouseClicked
 
     private void formWindowActivated(java.awt.event.WindowEvent evt) {//GEN-FIRST:event_formWindowActivated

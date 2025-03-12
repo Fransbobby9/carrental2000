@@ -54,7 +54,7 @@ public class adminDashboard extends javax.swing.JFrame {
         acc_name = new javax.swing.JLabel();
         acc_lname = new javax.swing.JLabel();
         jPanel3 = new javax.swing.JPanel();
-        c_name = new javax.swing.JPanel();
+        r_name = new javax.swing.JPanel();
         jLabel9 = new javax.swing.JLabel();
         jLabel10 = new javax.swing.JLabel();
         a_name = new javax.swing.JPanel();
@@ -136,32 +136,32 @@ public class adminDashboard extends javax.swing.JFrame {
                 .addComponent(acc_name, javax.swing.GroupLayout.PREFERRED_SIZE, 17, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(acc_lname)
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                .addContainerGap(152, Short.MAX_VALUE))
         );
 
         jPanel3.setBackground(new java.awt.Color(255, 255, 255));
 
-        c_name.setBackground(new java.awt.Color(255, 255, 255));
-        c_name.addMouseListener(new java.awt.event.MouseAdapter() {
+        r_name.setBackground(new java.awt.Color(255, 255, 255));
+        r_name.addMouseListener(new java.awt.event.MouseAdapter() {
             public void mouseClicked(java.awt.event.MouseEvent evt) {
-                c_nameMouseClicked(evt);
+                r_nameMouseClicked(evt);
             }
             public void mouseEntered(java.awt.event.MouseEvent evt) {
-                c_nameMouseEntered(evt);
+                r_nameMouseEntered(evt);
             }
             public void mouseExited(java.awt.event.MouseEvent evt) {
-                c_nameMouseExited(evt);
+                r_nameMouseExited(evt);
             }
         });
-        c_name.setLayout(null);
+        r_name.setLayout(null);
 
         jLabel9.setIcon(new javax.swing.ImageIcon(getClass().getResource("/images/icons8-user-50.png"))); // NOI18N
-        c_name.add(jLabel9);
+        r_name.add(jLabel9);
         jLabel9.setBounds(21, 0, 50, 50);
 
         jLabel10.setFont(new java.awt.Font("Tahoma", 1, 14)); // NOI18N
         jLabel10.setText("CUSTOMER");
-        c_name.add(jLabel10);
+        r_name.add(jLabel10);
         jLabel10.setBounds(8, 79, 90, 20);
 
         a_name.setBackground(new java.awt.Color(255, 255, 255));
@@ -215,7 +215,7 @@ public class adminDashboard extends javax.swing.JFrame {
                 .addGap(113, 113, 113)
                 .addComponent(a_name, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addGap(69, 69, 69)
-                .addComponent(c_name, javax.swing.GroupLayout.PREFERRED_SIZE, 91, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addComponent(r_name, javax.swing.GroupLayout.PREFERRED_SIZE, 91, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addGap(0, 0, Short.MAX_VALUE))
         );
         jPanel3Layout.setVerticalGroup(
@@ -224,8 +224,8 @@ public class adminDashboard extends javax.swing.JFrame {
                 .addGap(73, 73, 73)
                 .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
                     .addComponent(a_name, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(c_name, javax.swing.GroupLayout.PREFERRED_SIZE, 100, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addContainerGap(141, Short.MAX_VALUE))
+                    .addComponent(r_name, javax.swing.GroupLayout.PREFERRED_SIZE, 100, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
@@ -262,11 +262,11 @@ public class adminDashboard extends javax.swing.JFrame {
         this.dispose();
     }//GEN-LAST:event_jLabel2MouseClicked
 
-    private void c_nameMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_c_nameMouseClicked
+    private void r_nameMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_r_nameMouseClicked
         usersForm usf = new usersForm();
         usf.setVisible(true);
         this.dispose();
-    }//GEN-LAST:event_c_nameMouseClicked
+    }//GEN-LAST:event_r_nameMouseClicked
 
     private void formWindowActivated(java.awt.event.WindowEvent evt) {//GEN-FIRST:event_formWindowActivated
         Session sess = Session.getInstance();
@@ -280,13 +280,13 @@ public class adminDashboard extends javax.swing.JFrame {
         acc_lname.setText(""+sess.getLname());
     }//GEN-LAST:event_formWindowActivated
 
-    private void c_nameMouseEntered(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_c_nameMouseEntered
-        c_name.setBackground(hovercolor);
-    }//GEN-LAST:event_c_nameMouseEntered
+    private void r_nameMouseEntered(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_r_nameMouseEntered
+        r_name.setBackground(hovercolor);
+    }//GEN-LAST:event_r_nameMouseEntered
 
-    private void c_nameMouseExited(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_c_nameMouseExited
-        c_name.setBackground(navcolor);
-    }//GEN-LAST:event_c_nameMouseExited
+    private void r_nameMouseExited(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_r_nameMouseExited
+        r_name.setBackground(navcolor);
+    }//GEN-LAST:event_r_nameMouseExited
 
     private void a_nameMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_a_nameMouseClicked
         carForm cor = new carForm();
@@ -303,7 +303,7 @@ public class adminDashboard extends javax.swing.JFrame {
     }//GEN-LAST:event_a_nameMouseExited
 
     private void jLabel5MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jLabel5MouseClicked
-
+   
     }//GEN-LAST:event_jLabel5MouseClicked
 
     /**
@@ -345,7 +345,6 @@ public class adminDashboard extends javax.swing.JFrame {
     private javax.swing.JPanel a_name;
     private javax.swing.JLabel acc_lname;
     private javax.swing.JLabel acc_name;
-    private javax.swing.JPanel c_name;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel10;
     private javax.swing.JLabel jLabel2;
@@ -356,5 +355,6 @@ public class adminDashboard extends javax.swing.JFrame {
     private javax.swing.JPanel jPanel1;
     private javax.swing.JPanel jPanel2;
     private javax.swing.JPanel jPanel3;
+    private javax.swing.JPanel r_name;
     // End of variables declaration//GEN-END:variables
 }

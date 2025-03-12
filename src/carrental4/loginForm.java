@@ -119,7 +119,7 @@ public class loginForm extends javax.swing.JFrame {
                 jButton1ActionPerformed(evt);
             }
         });
-        jPanel1.add(jButton1, new org.netbeans.lib.awtextra.AbsoluteConstraints(177, 270, 90, 32));
+        jPanel1.add(jButton1, new org.netbeans.lib.awtextra.AbsoluteConstraints(170, 270, 90, 32));
 
         jButton2.setBackground(new java.awt.Color(0, 102, 102));
         jButton2.setText("EXIT");
