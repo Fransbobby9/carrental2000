@@ -51,7 +51,7 @@ public class createUserForm extends javax.swing.JFrame {
     }
     
    
-    
+     
         public static String mail,usname;
         
 
@@ -257,7 +257,7 @@ public class createUserForm extends javax.swing.JFrame {
         });
         jPanel3.add(jButton1, new org.netbeans.lib.awtextra.AbsoluteConstraints(150, 20, -1, -1));
 
-        getContentPane().add(jPanel3, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 42, 600, 460));
+        getContentPane().add(jPanel3, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 42, 600, 350));
 
         pack();
         setLocationRelativeTo(null);
@@ -275,13 +275,24 @@ public class createUserForm extends javax.swing.JFrame {
     String uname = un.getText().trim();
     String pass = ps.getText().trim();  // Using getText() for JTextField
     String email = em.getText().trim();
-    String accType = ut.getSelectedItem().toString().trim();
+    String status = us.getSelectedItem().toString().trim();
+    String type = ut.getSelectedItem().toString();
 
+
+     
 // Input validation
-if (fname.isEmpty() || lname.isEmpty() || uname.isEmpty() || pass.isEmpty() || email.isEmpty() || accType.isEmpty()) {
+if (fn.getText().trim().isEmpty() || 
+    ln.getText().trim().isEmpty() || 
+    un.getText().trim().isEmpty() || 
+    ps.getText().trim().isEmpty() || 
+    em.getText().trim().isEmpty() || 
+    ut.getSelectedItem() == null || ut.getSelectedItem().toString().trim().isEmpty() || 
+    us.getSelectedItem() == null || us.getSelectedItem().toString().trim().isEmpty()) {
+    
     JOptionPane.showMessageDialog(null, "Please Fill All Fields");
     return;
-} else if (pass.length() < 8) {  // Fixed condition (password must be at least 8 characters)
+}
+ else if (pass.length() < 8) {  // Fixed condition (password must be at least 8 characters)
     JOptionPane.showMessageDialog(null, "Password Must Be At Least 8 Characters");
     return;
 } else if (!email.matches("^[A-Za-z0-9+_.-]+@[A-Za-z0-9.-]+$")) {  // Better email validation
@@ -297,18 +308,24 @@ try {
     String hashedPassword = passwordHasher.hashPassword(pass);
 
     // Use a PreparedStatement to avoid SQL injection
-    String insertQuery = "INSERT INTO tbl_users (u_fname, u_lname, u_username, u_type, u_password, u_email, u_status) "
-                       + "VALUES (?, ?, ?, ?, ?, ?, 'Pending')";
+    String insertQuery = "INSERT INTO tbl_users (u_fname, u_lname, u_username, u_status, u_password, u_email, u_type) "
+                   + "VALUES (?, ?, ?, ?, ?, ?, ?)";
+
+
 
     try (Connection conn = dbc.getConnection();
          PreparedStatement pst = conn.prepareStatement(insertQuery)) {
         
-        pst.setString(1, fname);  // First name
-        pst.setString(2, lname);  // Last name
-        pst.setString(3, uname);  // Username
-        pst.setString(4, accType);  // Account type
-        pst.setString(5, hashedPassword);  // Store the hashed password
-        pst.setString(6, email);  // Email
+ pst.setString(1, fname);
+pst.setString(2, lname);
+pst.setString(3, uname);
+pst.setString(4, status);
+pst.setString(5, hashedPassword);
+pst.setString(6, email);
+pst.setString(7, type);  // Fix: Add Account Type (u_type)
+
+       
+
 
         int rowsInserted = pst.executeUpdate();
         if (rowsInserted > 0) {
@@ -345,8 +362,8 @@ String username = un.getText().trim();
 String pass = ps.getText().trim();
 String firstName = fn.getText().trim();  // First name
 String lastName = ln.getText().trim();   // Last name
-String type = us.getSelectedItem().toString();  // User type
-String statusValue = ut.getSelectedItem().toString(); // User status
+String type = ut.getSelectedItem().toString();  // User type
+String statusValue = us.getSelectedItem().toString(); // User status
 
 // Validation
 if (id.isEmpty()) {

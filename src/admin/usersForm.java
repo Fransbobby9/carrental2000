@@ -77,11 +77,11 @@ private JComboBox<String> type;
         }
          Session sess = Session.getInstance();
     
-    String[] columnNames = {"u_id", "u_email", "u_acctype", "u_username","u_pass", "u_status"};
+    String[] columnNames = {"u_id", "u_email", "u_type", "u_username","u_password", "u_status"};
     model.setColumnIdentifiers(columnNames); 
     model.setRowCount(0);
 
-    String sql = "SELECT u_id, u_email, u_acctype, u_username, u_passw, u_status FROM tbl_accounts WHERE u_id != '"+sess.getUid()+"';";
+    String sql = "SELECT u_id, u_email, u_type, u_username, u_password, u_status FROM tbl_users WHERE u_id != '"+sess.getUid()+"';";
 
     try (Connection connect = new dbConnector().getConnection();
          PreparedStatement pst = connect.prepareStatement(sql);
@@ -91,7 +91,7 @@ private JComboBox<String> type;
             Object[] row = {
                 rs.getInt("u_id"),
                 rs.getString("email"),
-                rs.getString("actype"),
+                rs.getString("type"),
                 rs.getString("username"),
                 rs.getString("pass"),
                 rs.getString("status")
@@ -110,7 +110,7 @@ private JComboBox<String> type;
         String newValue = user_table.getValueAt(row, column).toString(); 
         int userId = Integer.parseInt(user_table.getValueAt(row, 0).toString());
 
-        String sql = "UPDATE tbl_accounts SET " + columnName + " = ? WHERE u_id = ?";
+        String sql = "UPDATE tbl_users SET " + columnName + " = ? WHERE u_id = ?";
         try (PreparedStatement pst = connect.prepareStatement(sql)) {
             pst.setString(1, newValue);
             pst.setInt(2, userId);

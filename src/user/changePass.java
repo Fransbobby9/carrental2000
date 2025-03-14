@@ -11,6 +11,8 @@ import config.Session;
 import config.dbConnector;
 import config.passwordHasher;
 import java.security.NoSuchAlgorithmException;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import javax.swing.JOptionPane;
@@ -27,6 +29,7 @@ public class changePass extends javax.swing.JFrame {
     public changePass() {
         initComponents();
     }
+    
 
     /**
      * This method is called from within the constructor to initialize the form.
@@ -46,11 +49,11 @@ public class changePass extends javax.swing.JFrame {
         jLabel4 = new javax.swing.JLabel();
         oldpass = new javax.swing.JTextField();
         jLabel8 = new javax.swing.JLabel();
-        newpass = new javax.swing.JTextField();
-        conpass = new javax.swing.JTextField();
         jLabel11 = new javax.swing.JLabel();
         jButton1 = new javax.swing.JButton();
         jButton2 = new javax.swing.JButton();
+        newPassword = new javax.swing.JPasswordField();
+        Cpassword = new javax.swing.JPasswordField();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
         addWindowListener(new java.awt.event.WindowAdapter() {
@@ -115,7 +118,7 @@ public class changePass extends javax.swing.JFrame {
         );
         jPanel2Layout.setVerticalGroup(
             jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 315, Short.MAX_VALUE)
+            .addGap(0, 0, Short.MAX_VALUE)
         );
 
         jPanel3.setBackground(new java.awt.Color(255, 255, 255));
@@ -159,27 +162,31 @@ public class changePass extends javax.swing.JFrame {
             jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(jPanel3Layout.createSequentialGroup()
                 .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                        .addGroup(jPanel3Layout.createSequentialGroup()
-                            .addGap(19, 19, 19)
-                            .addComponent(jLabel4))
-                        .addGroup(jPanel3Layout.createSequentialGroup()
-                            .addGap(14, 14, 14)
-                            .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                                .addComponent(jLabel8)
-                                .addComponent(oldpass, javax.swing.GroupLayout.DEFAULT_SIZE, 200, Short.MAX_VALUE)
-                                .addComponent(newpass)))
+                    .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
                         .addGroup(jPanel3Layout.createSequentialGroup()
                             .addContainerGap()
-                            .addComponent(jLabel11))
-                        .addGroup(jPanel3Layout.createSequentialGroup()
-                            .addContainerGap()
-                            .addComponent(conpass)))
+                            .addComponent(newPassword)
+                            .addGap(5, 5, 5))
+                        .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addGroup(jPanel3Layout.createSequentialGroup()
+                                .addContainerGap()
+                                .addComponent(jButton2, javax.swing.GroupLayout.PREFERRED_SIZE, 100, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                .addComponent(jButton1, javax.swing.GroupLayout.PREFERRED_SIZE, 100, javax.swing.GroupLayout.PREFERRED_SIZE))
+                            .addGroup(jPanel3Layout.createSequentialGroup()
+                                .addGap(19, 19, 19)
+                                .addComponent(jLabel4))
+                            .addGroup(jPanel3Layout.createSequentialGroup()
+                                .addGap(14, 14, 14)
+                                .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                    .addComponent(oldpass, javax.swing.GroupLayout.PREFERRED_SIZE, 200, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                    .addComponent(jLabel8)))
+                            .addGroup(jPanel3Layout.createSequentialGroup()
+                                .addContainerGap()
+                                .addComponent(jLabel11))))
                     .addGroup(jPanel3Layout.createSequentialGroup()
                         .addContainerGap()
-                        .addComponent(jButton2, javax.swing.GroupLayout.PREFERRED_SIZE, 100, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(jButton1, javax.swing.GroupLayout.PREFERRED_SIZE, 100, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                        .addComponent(Cpassword, javax.swing.GroupLayout.PREFERRED_SIZE, 202, javax.swing.GroupLayout.PREFERRED_SIZE)))
                 .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
         jPanel3Layout.setVerticalGroup(
@@ -192,12 +199,12 @@ public class changePass extends javax.swing.JFrame {
                 .addGap(18, 18, 18)
                 .addComponent(jLabel8)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                .addComponent(newpass, javax.swing.GroupLayout.PREFERRED_SIZE, 30, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addComponent(newPassword, javax.swing.GroupLayout.PREFERRED_SIZE, 30, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addGap(18, 18, 18)
                 .addComponent(jLabel11)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                .addComponent(conpass, javax.swing.GroupLayout.DEFAULT_SIZE, 33, Short.MAX_VALUE)
                 .addGap(18, 18, 18)
+                .addComponent(Cpassword, javax.swing.GroupLayout.PREFERRED_SIZE, 40, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 30, Short.MAX_VALUE)
                 .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jButton1, javax.swing.GroupLayout.PREFERRED_SIZE, 30, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(jButton2, javax.swing.GroupLayout.PREFERRED_SIZE, 30, javax.swing.GroupLayout.PREFERRED_SIZE))
@@ -250,30 +257,70 @@ public class changePass extends javax.swing.JFrame {
 
     private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton1ActionPerformed
         
-        try{
+    String passw = new String(newPassword.getPassword()).trim();
+   String Cpassw = new String(Cpassword.getPassword()).trim();
+   String oldPassInput = oldpass.getText().trim();
+ // Use this for JPasswordField
+
+
+if (passw.isEmpty() || Cpassw.isEmpty() || oldPassInput.isEmpty()) {
+    JOptionPane.showMessageDialog(null, "Please fill all fields");
+} else if (passw.length() < 8) {
+    JOptionPane.showMessageDialog(null, "Password must be at least 8 characters long");
+} else if (!passw.equals(Cpassw)) {
+    JOptionPane.showMessageDialog(null, "New password does not match confirmation password");
+} else {
+    try {
         dbConnector dbc = new dbConnector();
         Session sess = Session.getInstance();
-        
-        String query = "SELECT * FROM tbl_users WHERE u_id = '"+sess.getUid()+"'";
-        ResultSet rs = dbc.getData(query);
-        if(rs.next()){
-            String olddbpass = rs.getString("u_password");
-            String oldhash = passwordHasher.hashPassword(oldpass.getText());
-            
-            if(olddbpass.equals(oldhash)){
-                String npass = passwordHasher.hashPassword(newpass.getText());
-                dbc.updateData("UPDATE tbl_users SET u_password = '"+npass+"'");
-                JOptionPane.showMessageDialog(null, "Successfully Updated!");
-                loginForm lg = new loginForm();
-                lg.setVisible(true);
-                this.dispose();
-            }else{
-                JOptionPane.showMessageDialog(null, "Old Password is Incorrect!");
+
+        String query = "SELECT u_password FROM tbl_users WHERE u_id = ?";
+        try (Connection conn = dbc.getConnection();
+             PreparedStatement pst = conn.prepareStatement(query)) {
+
+            pst.setInt(1, sess.getUid());
+            ResultSet rs = pst.executeQuery();
+
+            if (rs.next()) {
+                String olddbPassword = rs.getString("u_password");
+                String oldhash = passwordHasher.hashPassword(oldPassInput);
+                String newhash = passwordHasher.hashPassword(passw);
+
+                // Check if the old password matches the stored one
+                if (!olddbPassword.equals(oldhash)) {
+                    JOptionPane.showMessageDialog(null, "Old password is incorrect");
+                    return;
+                }
+
+                // Prevent user from reusing the old password
+                if (olddbPassword.equals(newhash)) {
+                    JOptionPane.showMessageDialog(null, "New password must be different from the old password");
+                    return;
+                }
+
+                // Update the password
+                String updateQuery = "UPDATE tbl_users SET u_password = ? WHERE u_id = ?";
+                try (PreparedStatement updatePst = conn.prepareStatement(updateQuery)) {
+                    updatePst.setString(1, newhash);
+                    updatePst.setInt(2, sess.getUid());
+
+                    int updated = updatePst.executeUpdate();
+                    if (updated > 0) {
+                        JOptionPane.showMessageDialog(null, "Password updated successfully");
+                        new usersDashboard().setVisible(true);
+                        this.dispose();
+                    } else {
+                        JOptionPane.showMessageDialog(null, "Password update failed");
+                    }
+                }
+            } else {
+                JOptionPane.showMessageDialog(null, "User not found");
             }
         }
-        }catch(SQLException | NoSuchAlgorithmException ex){
-            System.out.println(""+ex);
-        }
+    } catch (SQLException | NoSuchAlgorithmException ex) {
+        JOptionPane.showMessageDialog(null, "Error: " + ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+    }
+}
     }//GEN-LAST:event_jButton1ActionPerformed
 
     private void jButton2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton2ActionPerformed
@@ -325,7 +372,7 @@ public class changePass extends javax.swing.JFrame {
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
-    private javax.swing.JTextField conpass;
+    private javax.swing.JPasswordField Cpassword;
     private javax.swing.JLabel iddisplay;
     private javax.swing.JButton jButton1;
     private javax.swing.JButton jButton2;
@@ -337,7 +384,7 @@ public class changePass extends javax.swing.JFrame {
     private javax.swing.JPanel jPanel1;
     private javax.swing.JPanel jPanel2;
     private javax.swing.JPanel jPanel3;
-    private javax.swing.JTextField newpass;
+    private javax.swing.JPasswordField newPassword;
     private javax.swing.JTextField oldpass;
     // End of variables declaration//GEN-END:variables
 }

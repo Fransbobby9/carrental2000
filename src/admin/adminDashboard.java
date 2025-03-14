@@ -160,9 +160,9 @@ public class adminDashboard extends javax.swing.JFrame {
         jLabel9.setBounds(21, 0, 50, 50);
 
         jLabel10.setFont(new java.awt.Font("Tahoma", 1, 14)); // NOI18N
-        jLabel10.setText("CUSTOMER");
+        jLabel10.setText("USERS");
         r_name.add(jLabel10);
-        jLabel10.setBounds(8, 79, 90, 20);
+        jLabel10.setBounds(20, 70, 50, 20);
 
         a_name.setBackground(new java.awt.Color(255, 255, 255));
         a_name.addMouseListener(new java.awt.event.MouseAdapter() {
