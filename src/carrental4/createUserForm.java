@@ -9,6 +9,7 @@ import admin.usersForm;
 import static carrental4.regForm.email;
 import static carrental4.regForm.username;
 import config.dbConnector;
+import config.passwordHasher;
 import java.awt.Image;
 import java.awt.image.BufferedImage;
 import java.io.File;
@@ -17,6 +18,9 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import javax.imageio.ImageIO;
@@ -39,117 +43,45 @@ public class createUserForm extends javax.swing.JFrame {
     }
     
     
-    public String destination = ""; 
-    File selectedFile;
-    public String oldpath;
-    public String path;
     
-    public int FileExistenceChecker(String path){
-        File file = new File(path);
-        String fileName = file.getName();
-        
-        Path filePath = Paths.get("src/usersimages", fileName);
-        boolean fileExists = Files.exists(filePath);
-        
-        if (fileExists) {
-            return 1;
-        } else {
-            return 0;
-        }
-    
+       private String userId; // Declare userId at the class level
+
+    public void setUserId(String id) {
+        this.userId = id; // Store the user ID for later use
     }
     
-    public static int getHeightFromWidth(String imagePath, int desiredWidth) {
-        try {
-            // Read the image file
-            File imageFile = new File(imagePath);
-            BufferedImage image = ImageIO.read(imageFile);
-            
-            // Get the original width and height of the image
-            int originalWidth = image.getWidth();
-            int originalHeight = image.getHeight();
-            
-            // Calculate the new height based on the desired width and the aspect ratio
-            int newHeight = (int) ((double) desiredWidth / originalWidth * originalHeight);
-            
-            return newHeight;
-        } catch (IOException ex) {
-            System.out.println("No image found!");
-        }
+   
+    
+        public static String mail,usname;
         
-        return -1;
-    }    
-    
-    
-    public  ImageIcon ResizeImage(String ImagePath, byte[] pic, JLabel label) {
-        ImageIcon MyImage = null;
-            if(ImagePath !=null){
-                MyImage = new ImageIcon(ImagePath);
-            }else{
-                MyImage = new ImageIcon(pic);
-            }
 
-        int newHeight = getHeightFromWidth(ImagePath, label.getWidth());
-
-        Image img = MyImage.getImage();
-        Image newImg = img.getScaledInstance(label.getWidth(), newHeight, Image.SCALE_SMOOTH);
-        ImageIcon image = new ImageIcon(newImg);
-        return image;
-    }
-    
-        public void imageUpdater(String existingFilePath, String newFilePath){
-        File existingFile = new File(existingFilePath);
-        if (existingFile.exists()) {
-            String parentDirectory = existingFile.getParent();
-            File newFile = new File(newFilePath);
-            String newFileName = newFile.getName();
-            File updatedFile = new File(parentDirectory, newFileName);
-            existingFile.delete();
-            try {
-                Files.copy(newFile.toPath(), updatedFile.toPath(), StandardCopyOption.REPLACE_EXISTING);
-                System.out.println("Image updated successfully.");
-            } catch (IOException e) {
-                System.out.println("Error occurred while updating the image: "+e);
-            }
-        } else {
-            try{
-                Files.copy(selectedFile.toPath(), new File(destination).toPath(), StandardCopyOption.REPLACE_EXISTING);
-            }catch(IOException e){
-                System.out.println("Error on update!");
-            }
-        }
-   }
-    
-    public boolean duplicateCheck(){
-        
+   public boolean duplicateCheck(String username, String email) { 
     dbConnector dbc = new dbConnector();
+    
+    try {
+        String query = "SELECT * FROM tbl_users WHERE u_username = '" + username + "' OR u_email = '" + email + "'";
+        ResultSet resultSet = dbc.getData(query);
         
-     try{
-            String query = "SELECT * FROM tbl_users  WHERE u_username = '" +un.getText()+ "' OR u_email = '" +em.getText()+ "'";
-            ResultSet resultSet = dbc.getData(query);
-           
-            if(resultSet.next()){
-                email = resultSet.getString("u_email");
-                if(email.equals(em.getText())){
+        if (resultSet.next()) {
+            String existingEmail = resultSet.getString("u_email");
+            if (existingEmail.equals(email)) {
                 JOptionPane.showMessageDialog(null, "Email is already used!");
-                em.setText("");
-                }
-                username = resultSet.getString("u_username");
-                if(username.equals(un.getText())){
-                JOptionPane.showMessageDialog(null, "Username is already used!");
-                un.setText("");
-                }
                 return true;
-        }else{
-                
-                return false;
-     }
-     }catch(SQLException ex){
-         System.out.println(""+ex);
-         return false;
-     }
+            }
+
+            String existingUsername = resultSet.getString("u_username");
+            if (existingUsername.equals(username)) {
+                JOptionPane.showMessageDialog(null, "Username is already used!");
+                return true;
+            }
+        }
+    } catch (SQLException ex) {
+        System.out.println("" + ex);
     }
     
+    return false; // No duplicate found
+}
+
     public boolean UpdateCheck(){
         
     dbConnector dbc = new dbConnector();
@@ -207,19 +139,14 @@ public class createUserForm extends javax.swing.JFrame {
         add = new javax.swing.JButton();
         us = new javax.swing.JComboBox<>();
         jLabel7 = new javax.swing.JLabel();
-        update = new javax.swing.JButton();
-        delete = new javax.swing.JButton();
-        clear = new javax.swing.JButton();
         cancel = new javax.swing.JButton();
         refresh = new javax.swing.JButton();
         fn = new javax.swing.JTextField();
         jLabel8 = new javax.swing.JLabel();
-        select = new javax.swing.JButton();
-        remove = new javax.swing.JButton();
-        jPanel2 = new javax.swing.JPanel();
-        image = new javax.swing.JLabel();
+        jButton1 = new javax.swing.JButton();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
+        getContentPane().setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
 
         jPanel1.setBackground(new java.awt.Color(51, 51, 255));
 
@@ -227,32 +154,41 @@ public class createUserForm extends javax.swing.JFrame {
         jPanel1.setLayout(jPanel1Layout);
         jPanel1Layout.setHorizontalGroup(
             jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 588, Short.MAX_VALUE)
+            .addGap(0, 599, Short.MAX_VALUE)
         );
         jPanel1Layout.setVerticalGroup(
             jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGap(0, 35, Short.MAX_VALUE)
         );
 
+        getContentPane().add(jPanel1, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 0, -1, -1));
+
         jPanel3.setBackground(new java.awt.Color(255, 255, 255));
+        jPanel3.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
 
         jLabel1.setFont(new java.awt.Font("Tahoma", 1, 14)); // NOI18N
         jLabel1.setText("User ID:");
+        jPanel3.add(jLabel1, new org.netbeans.lib.awtextra.AbsoluteConstraints(12, 58, -1, -1));
 
         jLabel2.setFont(new java.awt.Font("Tahoma", 1, 14)); // NOI18N
         jLabel2.setText("Last Name:");
+        jPanel3.add(jLabel2, new org.netbeans.lib.awtextra.AbsoluteConstraints(12, 128, -1, -1));
 
         jLabel3.setFont(new java.awt.Font("Tahoma", 1, 14)); // NOI18N
         jLabel3.setText("Email:");
+        jPanel3.add(jLabel3, new org.netbeans.lib.awtextra.AbsoluteConstraints(12, 163, -1, -1));
 
         jLabel4.setFont(new java.awt.Font("Tahoma", 1, 14)); // NOI18N
         jLabel4.setText("UserName:");
+        jPanel3.add(jLabel4, new org.netbeans.lib.awtextra.AbsoluteConstraints(12, 203, -1, -1));
 
         jLabel5.setFont(new java.awt.Font("Tahoma", 1, 14)); // NOI18N
         jLabel5.setText("Password:");
+        jPanel3.add(jLabel5, new org.netbeans.lib.awtextra.AbsoluteConstraints(12, 238, -1, -1));
 
         jLabel6.setFont(new java.awt.Font("Tahoma", 1, 14)); // NOI18N
         jLabel6.setText("Account Type:");
+        jPanel3.add(jLabel6, new org.netbeans.lib.awtextra.AbsoluteConstraints(12, 273, -1, -1));
 
         uid.setEnabled(false);
         uid.addActionListener(new java.awt.event.ActionListener() {
@@ -260,8 +196,14 @@ public class createUserForm extends javax.swing.JFrame {
                 uidActionPerformed(evt);
             }
         });
+        jPanel3.add(uid, new org.netbeans.lib.awtextra.AbsoluteConstraints(115, 56, 150, -1));
+        jPanel3.add(ln, new org.netbeans.lib.awtextra.AbsoluteConstraints(115, 126, 150, -1));
+        jPanel3.add(em, new org.netbeans.lib.awtextra.AbsoluteConstraints(116, 161, 149, -1));
+        jPanel3.add(un, new org.netbeans.lib.awtextra.AbsoluteConstraints(116, 201, 149, -1));
+        jPanel3.add(ps, new org.netbeans.lib.awtextra.AbsoluteConstraints(116, 236, 149, -1));
 
         ut.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Admin", "User" }));
+        jPanel3.add(ut, new org.netbeans.lib.awtextra.AbsoluteConstraints(124, 271, 120, -1));
 
         add.setBackground(new java.awt.Color(0, 102, 102));
         add.setText("ADD");
@@ -270,6 +212,7 @@ public class createUserForm extends javax.swing.JFrame {
                 addActionPerformed(evt);
             }
         });
+        jPanel3.add(add, new org.netbeans.lib.awtextra.AbsoluteConstraints(60, 20, 66, -1));
 
         us.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Active", "Pending" }));
         us.addActionListener(new java.awt.event.ActionListener() {
@@ -277,34 +220,11 @@ public class createUserForm extends javax.swing.JFrame {
                 usActionPerformed(evt);
             }
         });
+        jPanel3.add(us, new org.netbeans.lib.awtextra.AbsoluteConstraints(120, 300, 120, -1));
 
         jLabel7.setFont(new java.awt.Font("Tahoma", 1, 14)); // NOI18N
         jLabel7.setText("User Status:");
-
-        update.setBackground(new java.awt.Color(0, 102, 102));
-        update.setText("UPDATE");
-        update.setEnabled(false);
-        update.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                updateActionPerformed(evt);
-            }
-        });
-
-        delete.setBackground(new java.awt.Color(0, 102, 102));
-        delete.setText("DELETE");
-        delete.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                deleteActionPerformed(evt);
-            }
-        });
-
-        clear.setBackground(new java.awt.Color(0, 102, 102));
-        clear.setText("CLEAR");
-        clear.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                clearActionPerformed(evt);
-            }
-        });
+        jPanel3.add(jLabel7, new org.netbeans.lib.awtextra.AbsoluteConstraints(12, 302, -1, -1));
 
         cancel.setBackground(new java.awt.Color(0, 102, 102));
         cancel.setText("CANCEL");
@@ -313,6 +233,7 @@ public class createUserForm extends javax.swing.JFrame {
                 cancelActionPerformed(evt);
             }
         });
+        jPanel3.add(cancel, new org.netbeans.lib.awtextra.AbsoluteConstraints(270, 20, -1, -1));
 
         refresh.setBackground(new java.awt.Color(0, 102, 102));
         refresh.setText("REFRESH");
@@ -321,162 +242,22 @@ public class createUserForm extends javax.swing.JFrame {
                 refreshActionPerformed(evt);
             }
         });
+        jPanel3.add(refresh, new org.netbeans.lib.awtextra.AbsoluteConstraints(370, 20, -1, -1));
+        jPanel3.add(fn, new org.netbeans.lib.awtextra.AbsoluteConstraints(116, 91, 149, -1));
 
         jLabel8.setFont(new java.awt.Font("Tahoma", 1, 14)); // NOI18N
         jLabel8.setText("First Name:");
+        jPanel3.add(jLabel8, new org.netbeans.lib.awtextra.AbsoluteConstraints(12, 93, -1, -1));
 
-        select.setBackground(new java.awt.Color(0, 102, 102));
-        select.setText("SELECT");
-        select.setBorder(javax.swing.BorderFactory.createEtchedBorder());
-        select.addActionListener(new java.awt.event.ActionListener() {
+        jButton1.setText("UPDATE");
+        jButton1.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                selectActionPerformed(evt);
+                jButton1ActionPerformed(evt);
             }
         });
+        jPanel3.add(jButton1, new org.netbeans.lib.awtextra.AbsoluteConstraints(150, 20, -1, -1));
 
-        remove.setBackground(new java.awt.Color(0, 102, 102));
-        remove.setText("REMOVE");
-        remove.setBorder(javax.swing.BorderFactory.createEtchedBorder());
-        remove.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                removeActionPerformed(evt);
-            }
-        });
-
-        jPanel2.setLayout(null);
-
-        image.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
-        jPanel2.add(image);
-        image.setBounds(10, 10, 210, 190);
-
-        javax.swing.GroupLayout jPanel3Layout = new javax.swing.GroupLayout(jPanel3);
-        jPanel3.setLayout(jPanel3Layout);
-        jPanel3Layout.setHorizontalGroup(
-            jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(jPanel3Layout.createSequentialGroup()
-                .addContainerGap()
-                .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                    .addGroup(jPanel3Layout.createSequentialGroup()
-                        .addComponent(jLabel1)
-                        .addGap(46, 46, 46)
-                        .addComponent(uid))
-                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel3Layout.createSequentialGroup()
-                        .addComponent(add, javax.swing.GroupLayout.PREFERRED_SIZE, 66, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(update)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                        .addComponent(delete, javax.swing.GroupLayout.DEFAULT_SIZE, 89, Short.MAX_VALUE))
-                    .addGroup(jPanel3Layout.createSequentialGroup()
-                        .addComponent(jLabel8)
-                        .addGap(25, 25, 25)
-                        .addComponent(fn))
-                    .addGroup(jPanel3Layout.createSequentialGroup()
-                        .addComponent(jLabel2)
-                        .addGap(25, 25, 25)
-                        .addComponent(ln))
-                    .addGroup(jPanel3Layout.createSequentialGroup()
-                        .addComponent(jLabel3)
-                        .addGap(63, 63, 63)
-                        .addComponent(em))
-                    .addGroup(jPanel3Layout.createSequentialGroup()
-                        .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(jLabel4)
-                            .addComponent(jLabel5))
-                        .addGap(28, 28, 28)
-                        .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(ps)
-                            .addComponent(un)))
-                    .addGroup(jPanel3Layout.createSequentialGroup()
-                        .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(jLabel6)
-                            .addComponent(jLabel7))
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                        .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
-                            .addComponent(us, 0, 120, Short.MAX_VALUE)
-                            .addComponent(ut, 0, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))))
-                .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addGroup(jPanel3Layout.createSequentialGroup()
-                        .addGap(18, 18, 18)
-                        .addComponent(clear)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(cancel)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                        .addComponent(refresh, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-                    .addGroup(jPanel3Layout.createSequentialGroup()
-                        .addGap(37, 37, 37)
-                        .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(jPanel2, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                            .addGroup(jPanel3Layout.createSequentialGroup()
-                                .addComponent(select, javax.swing.GroupLayout.PREFERRED_SIZE, 100, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                .addGap(33, 33, 33)
-                                .addComponent(remove, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)))))
-                .addGap(66, 66, 66))
-        );
-        jPanel3Layout.setVerticalGroup(
-            jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(jPanel3Layout.createSequentialGroup()
-                .addContainerGap()
-                .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(add)
-                    .addComponent(update)
-                    .addComponent(delete)
-                    .addComponent(clear)
-                    .addComponent(cancel)
-                    .addComponent(refresh))
-                .addGap(18, 18, 18)
-                .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                    .addGroup(jPanel3Layout.createSequentialGroup()
-                        .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                            .addComponent(uid, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addComponent(jLabel1))
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                        .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                            .addComponent(fn, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addComponent(jLabel8))
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                        .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                            .addComponent(ln, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addComponent(jLabel2))
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                        .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                            .addComponent(jLabel3)
-                            .addComponent(em, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                        .addGap(18, 18, 18)
-                        .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                            .addComponent(jLabel4)
-                            .addComponent(un, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                        .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                            .addComponent(ps, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addComponent(jLabel5))
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                        .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                            .addComponent(jLabel6)
-                            .addComponent(ut, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
-                    .addComponent(jPanel2, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(us, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(jLabel7)
-                    .addComponent(select, javax.swing.GroupLayout.PREFERRED_SIZE, 30, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(remove, javax.swing.GroupLayout.PREFERRED_SIZE, 30, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addContainerGap(32, Short.MAX_VALUE))
-        );
-
-        javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
-        getContentPane().setLayout(layout);
-        layout.setHorizontalGroup(
-            layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(jPanel1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-            .addComponent(jPanel3, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-        );
-        layout.setVerticalGroup(
-            layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(layout.createSequentialGroup()
-                .addComponent(jPanel1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                .addComponent(jPanel3, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-        );
+        getContentPane().add(jPanel3, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 42, 600, 460));
 
         pack();
         setLocationRelativeTo(null);
@@ -488,79 +269,64 @@ public class createUserForm extends javax.swing.JFrame {
 
     private void addActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_addActionPerformed
 
-        if(fn.getText().isEmpty()|| ln.getText().isEmpty()||em.getText().isEmpty()||un.getText().isEmpty()||ps.getText().isEmpty()){
-            JOptionPane.showMessageDialog(null, "All fields are required!");
-        }else if(ps.getText().length() <8){
-            JOptionPane.showMessageDialog(null, "Password character should be 8 and above");
-            ps.setText("");
-        }else if(duplicateCheck()){
-            System.out.println("Duplicate Exist!");
-        }else{
-            
-            dbConnector dbc = new dbConnector();
-            if(dbc.insertData("INSERT INTO tbl_users (u_fname, u_lname, u_email, u_username, u_password, u_type, u_status, u_image) "
-                + "VALUES ('"+fn.getText()+"','"+ln.getText()+"','"+em.getText()+"','"+un.getText()+"','"+ps.getText()+"','"+ut.getSelectedItem()+"','"+us.getSelectedItem()+"','"+destination+"')"))
-        {
-            try{
-            Files.copy(selectedFile.toPath(),new File(destination).toPath(), StandardCopyOption.REPLACE_EXISTING);
-            JOptionPane.showMessageDialog(null, "Inserted Success!");
-            usersForm uf = new usersForm();
-            uf.setVisible(true);
+     dbConnector dbc = new dbConnector();
+    String fname = fn.getText().trim();
+    String lname = ln.getText().trim();
+    String uname = un.getText().trim();
+    String pass = ps.getText().trim();  // Using getText() for JTextField
+    String email = em.getText().trim();
+    String accType = ut.getSelectedItem().toString().trim();
+
+// Input validation
+if (fname.isEmpty() || lname.isEmpty() || uname.isEmpty() || pass.isEmpty() || email.isEmpty() || accType.isEmpty()) {
+    JOptionPane.showMessageDialog(null, "Please Fill All Fields");
+    return;
+} else if (pass.length() < 8) {  // Fixed condition (password must be at least 8 characters)
+    JOptionPane.showMessageDialog(null, "Password Must Be At Least 8 Characters");
+    return;
+} else if (!email.matches("^[A-Za-z0-9+_.-]+@[A-Za-z0-9.-]+$")) {  // Better email validation
+    JOptionPane.showMessageDialog(null, "Enter a Valid Email Address");
+    return;
+  } else if (duplicateCheck(uname, email)) {  // Pass username and email to check duplicates
+    JOptionPane.showMessageDialog(null, "Username or Email Already Exists");
+    return;
+}
+
+try {
+    // Hash the password using passwordHasher
+    String hashedPassword = passwordHasher.hashPassword(pass);
+
+    // Use a PreparedStatement to avoid SQL injection
+    String insertQuery = "INSERT INTO tbl_users (u_fname, u_lname, u_username, u_type, u_password, u_email, u_status) "
+                       + "VALUES (?, ?, ?, ?, ?, ?, 'Pending')";
+
+    try (Connection conn = dbc.getConnection();
+         PreparedStatement pst = conn.prepareStatement(insertQuery)) {
+        
+        pst.setString(1, fname);  // First name
+        pst.setString(2, lname);  // Last name
+        pst.setString(3, uname);  // Username
+        pst.setString(4, accType);  // Account type
+        pst.setString(5, hashedPassword);  // Store the hashed password
+        pst.setString(6, email);  // Email
+
+        int rowsInserted = pst.executeUpdate();
+        if (rowsInserted > 0) {
+            JOptionPane.showMessageDialog(null, "Registered Successfully!");
+            new usersForm().setVisible(true);
             this.dispose();
-           }catch(IOException ex){
-                   System.out.println("Insert Image Error: "+ex);
-                   }
-        }else{
-            JOptionPane.showMessageDialog(null, "Connection Error!");
+        } else {
+            JOptionPane.showMessageDialog(null, "Registration Failed!");
         }
-        }
+    }
+} catch (Exception ex) {
+    JOptionPane.showMessageDialog(null, "Error: " + ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+}
     }//GEN-LAST:event_addActionPerformed
 
     private void usActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_usActionPerformed
         // TODO add your handling code here:
     }//GEN-LAST:event_usActionPerformed
-
-    private void updateActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_updateActionPerformed
-        
-        if(fn.getText().isEmpty()|| ln.getText().isEmpty()||em.getText().isEmpty()||un.getText().isEmpty()||
-        ps.getText().isEmpty()){
-        JOptionPane.showMessageDialog(null, "All fields are required!");
-        }else if(ps.getText().length() <8){
-            JOptionPane.showMessageDialog(null, "Password character should be 8 and above");
-            ps.setText("");
-        }else if(UpdateCheck()){
-            System.out.println("Duplicate Exist!");
-        }else{
-        
-        dbConnector dbc = new dbConnector();
-        dbc.updateData("UPDATE tbl_users SET u_fname = '"+fn.getText()+"', u_lname = '"+ln.getText()+"', "
-                + "u_email = '"+em.getText()+"', u_username = '"+un.getText()+"', u_password = '"+ps.getText()+"', "
-                + "u_type = '"+ut.getSelectedItem()+"', u_status = '"+us.getSelectedItem()+"', u_image ='"+destination+"' WHERE u_id = '"+uid.getText()+"'");
-
-        
-        if(destination.isEmpty()){
-            File existingFile = new File(oldpath);
-            if(existingFile.exists()){
-                existingFile.delete();
-            }else{
-                if(!(oldpath.equals(path))){
-                    imageUpdater(oldpath,path);
-                }
-            }
-        }
-        usersForm uf = new usersForm();
-        uf.setVisible(true);
-        this.dispose();
-        }
-    }//GEN-LAST:event_updateActionPerformed
-
-    private void deleteActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_deleteActionPerformed
-        // TODO add your handling code here:
-    }//GEN-LAST:event_deleteActionPerformed
-
-    private void clearActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_clearActionPerformed
-        // TODO add your handling code here:
-    }//GEN-LAST:event_clearActionPerformed
 
     private void cancelActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_cancelActionPerformed
         usersForm usf = new usersForm();
@@ -572,38 +338,91 @@ public class createUserForm extends javax.swing.JFrame {
         // TODO add your handling code here:
     }//GEN-LAST:event_refreshActionPerformed
 
-    private void selectActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_selectActionPerformed
-    JFileChooser fileChooser = new JFileChooser();
-                int returnValue = fileChooser.showOpenDialog(null);
-                if (returnValue == JFileChooser.APPROVE_OPTION) {
-                    try {
-                        selectedFile = fileChooser.getSelectedFile();
-                        destination = "src/usersimages/" + selectedFile.getName();
-                        path  = selectedFile.getAbsolutePath();
-                        
-                        
-                        if(FileExistenceChecker(path) == 1){
-                          JOptionPane.showMessageDialog(null, "File Already Exist, Rename or Choose another!");
-                            destination = "";
-                            path= "";
-                        }else{
-                            image.setIcon(ResizeImage(path, null, image));
-                            select.setEnabled(false);
-                            remove.setEnabled(true);
-                        }
-                    } catch (Exception ex) {
-                        System.out.println("File Error!");
-                    }
-                }
-    }//GEN-LAST:event_selectActionPerformed
+    private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton1ActionPerformed
+String id = uid.getText().trim();
+String email = em.getText().trim();
+String username = un.getText().trim();
+String pass = ps.getText().trim();
+String firstName = fn.getText().trim();  // First name
+String lastName = ln.getText().trim();   // Last name
+String type = us.getSelectedItem().toString();  // User type
+String statusValue = ut.getSelectedItem().toString(); // User status
 
-    private void removeActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_removeActionPerformed
-        remove.setEnabled(false);
-        select.setEnabled(true);
-        image.setIcon(null);
-        destination = "";
-        path = "";
-    }//GEN-LAST:event_removeActionPerformed
+// Validation
+if (id.isEmpty()) {
+    JOptionPane.showMessageDialog(this, "Error: User ID is missing.", "Error", JOptionPane.ERROR_MESSAGE);
+    return;
+}
+
+if (firstName.isEmpty() || lastName.isEmpty()) {
+    JOptionPane.showMessageDialog(this, "Error: First Name and Last Name are required.", "Error", JOptionPane.ERROR_MESSAGE);
+    return;
+}
+
+// Email validation
+String emailRegex = "^[a-zA-Z0-9_+&*-]+(?:\\.[a-zA-Z0-9_+&*-]+)*@(?:[a-zA-Z0-9-]+\\.)+[a-zA-Z]{2,7}$";
+if (!email.matches(emailRegex)) {
+    JOptionPane.showMessageDialog(this, "Invalid Email! Please enter a valid email address.", "Error", JOptionPane.ERROR_MESSAGE);
+    return;
+}
+
+// Username validation
+if (!username.matches("[a-zA-Z0-9_]{5,}")) {
+    JOptionPane.showMessageDialog(this, "Invalid Username! Must be at least 5 characters and contain only letters, numbers, and underscores.", "Error", JOptionPane.ERROR_MESSAGE);
+    return;
+}
+
+try {
+    // Hash the password using SHA-256 before storing
+    String hashedPassword = passwordHasher.hashPassword(pass);
+
+    dbConnector dbc = new dbConnector();
+    String checkQuery = "SELECT COUNT(*) FROM tbl_users WHERE (u_username = ? OR u_email = ?) AND u_id != ?";
+
+    try (Connection conn = dbc.getConnection();
+         PreparedStatement pst = conn.prepareStatement(checkQuery)) {
+
+        pst.setString(1, username);
+        pst.setString(2, email);
+        pst.setInt(3, Integer.parseInt(id));
+
+        try (ResultSet rs = pst.executeQuery()) {
+            if (rs.next() && rs.getInt(1) > 0) {
+                JOptionPane.showMessageDialog(this, "Username or Email already exists! Please use different credentials.", "Error", JOptionPane.ERROR_MESSAGE);
+                return;
+            }
+        }
+
+        // ✅ Corrected the column order in the UPDATE query
+        String updateQuery = "UPDATE tbl_users SET u_fname = ?, u_lname = ?, u_username = ?, u_email = ?, u_password = ?, u_status = ?, u_type = ? WHERE u_id = ?";
+
+        try (Connection con = DriverManager.getConnection("jdbc:mysql://localhost:3306/car_rental", "root", "");
+             PreparedStatement updatePst = con.prepareStatement(updateQuery)) {
+
+            updatePst.setString(1, firstName);   // First name
+            updatePst.setString(2, lastName);    // Last name
+            updatePst.setString(3, username);    // Username
+            updatePst.setString(4, email);       // Email
+            updatePst.setString(5, hashedPassword);  // Store hashed password
+            updatePst.setString(6, statusValue); // Status (Corrected order)
+            updatePst.setString(7, type);        // Type (Corrected order)
+            updatePst.setInt(8, Integer.parseInt(id));  // User ID
+
+            int updated = updatePst.executeUpdate();
+            if (updated > 0) {
+                JOptionPane.showMessageDialog(this, "User updated successfully!", "Success", JOptionPane.INFORMATION_MESSAGE);
+                new usersForm().setVisible(true);
+                this.dispose();
+            } else {
+                JOptionPane.showMessageDialog(this, "Update failed!", "Error", JOptionPane.ERROR_MESSAGE);
+            }
+        }
+    }
+} catch (Exception ex) {
+    JOptionPane.showMessageDialog(this, "Error: " + ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+}
+
+    }//GEN-LAST:event_jButton1ActionPerformed
 
     /**
      * @param args the command line arguments
@@ -643,11 +462,9 @@ public class createUserForm extends javax.swing.JFrame {
     // Variables declaration - do not modify//GEN-BEGIN:variables
     public javax.swing.JButton add;
     private javax.swing.JButton cancel;
-    private javax.swing.JButton clear;
-    public javax.swing.JButton delete;
     public javax.swing.JTextField em;
     public javax.swing.JTextField fn;
-    public javax.swing.JLabel image;
+    private javax.swing.JButton jButton1;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel2;
     private javax.swing.JLabel jLabel3;
@@ -657,16 +474,12 @@ public class createUserForm extends javax.swing.JFrame {
     private javax.swing.JLabel jLabel7;
     private javax.swing.JLabel jLabel8;
     private javax.swing.JPanel jPanel1;
-    public javax.swing.JPanel jPanel2;
     private javax.swing.JPanel jPanel3;
     public javax.swing.JTextField ln;
     public javax.swing.JTextField ps;
     private javax.swing.JButton refresh;
-    public javax.swing.JButton remove;
-    public javax.swing.JButton select;
     public javax.swing.JTextField uid;
     public javax.swing.JTextField un;
-    public javax.swing.JButton update;
     public javax.swing.JComboBox<String> us;
     public javax.swing.JComboBox<String> ut;
     // End of variables declaration//GEN-END:variables
