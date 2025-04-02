@@ -13,7 +13,7 @@ public class dbConnector {
     private static final String USER = "root";
     private static final String PASSWORD = "";
 
-    private Connection connect;
+    public Connection connect;
 
     // Constructor to establish the database connection
     public dbConnector() {

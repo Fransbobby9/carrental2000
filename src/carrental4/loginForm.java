@@ -10,8 +10,12 @@ import config.Session;
 import config.dbConnector;
 import config.passwordHasher;
 import java.security.NoSuchAlgorithmException;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Timestamp;
+import java.util.Date;
 import javax.swing.JOptionPane;
 import user.usersDashboard;
 
@@ -31,39 +35,95 @@ public class loginForm extends javax.swing.JFrame {
     static String status;
     static String type;
     
-    public static boolean loginAcc(String username, String password){
+  public static boolean loginAcc(String username, String password) {
         dbConnector connector = new dbConnector();
-        try{
-            String query = "SELECT * FROM tbl_users  WHERE u_username = '" + username + "'";
-            ResultSet resultSet = connector.getData(query);
-            if(resultSet.next()){     
-   
+        String query = "SELECT * FROM tbl_users WHERE u_username = ?";
+
+        try (Connection connection = connector.getConnection();
+             PreparedStatement stmt = connection.prepareStatement(query)) {
+
+            stmt.setString(1, username);
+            ResultSet resultSet = stmt.executeQuery();
+
+            if (resultSet.next()) {
                 String hashedPass = resultSet.getString("u_password");
                 String rehashedPass = passwordHasher.hashPassword(password);
-                
-                if(hashedPass.equals(rehashedPass)){        
-                status = resultSet.getString("u_status");   
-                type = resultSet.getString("u_type");
-                Session sess = Session.getInstance();
-                sess.setUid(resultSet.getInt("u_id"));
-                sess.setFname(resultSet.getString("u_fname"));
-                sess.setLname(resultSet.getString("u_lname"));
-                sess.setEmail(resultSet.getString("u_email"));
-                sess.setUsername(resultSet.getString("u_username"));
-                sess.setType(resultSet.getString("u_type"));
-                sess.setStatus(resultSet.getString("u_status"));
-                return true;   
-                }else{
-                return false;
-                }
-        }else{
-            return false;
-        }          
-        }catch (SQLException | NoSuchAlgorithmException ex) {
-            return false;
-        }
 
+                if (hashedPass.equals(rehashedPass)) {
+                    status = resultSet.getString("u_status");
+                    type = resultSet.getString("u_type");
+
+                    // Set session details
+                    Session sess = Session.getInstance();
+                    sess.setUid(resultSet.getInt("u_id"));
+                    sess.setFname(resultSet.getString("u_fname"));
+                    sess.setLname(resultSet.getString("u_lname"));
+                    sess.setEmail(resultSet.getString("u_email"));
+                    sess.setUsername(resultSet.getString("u_username"));
+                    sess.setType(resultSet.getString("u_type"));
+                    sess.setStatus(resultSet.getString("u_status"));
+
+                    return true;
+                }
+            }
+        } catch (SQLException | NoSuchAlgorithmException ex) {
+            ex.printStackTrace(); // Log the error for debugging
+        }
+        return false;
     }
+
+
+    
+    public void logEvent(int userId, String username, String userType) {
+    dbConnector dbc = new dbConnector();
+    Connection con = dbc.getConnection();
+    PreparedStatement pstmt = null;
+
+    try {
+        String sql = "INSERT INTO tbl_log (u_id, u_username, login_time, u_type) VALUES (?, ?, ?, ?)";
+        pstmt = con.prepareStatement(sql);
+
+        pstmt.setInt(1, userId);
+        pstmt.setString(2, username);
+        pstmt.setTimestamp(3, new Timestamp(new Date().getTime()));
+        pstmt.setString(4, userType);
+
+        pstmt.executeUpdate();
+        System.out.println("Login log recorded successfully.");
+    } catch (SQLException e) {
+        JOptionPane.showMessageDialog(null, "Error recording log: " + e.getMessage());
+    } finally {
+        try {
+            if (pstmt != null) pstmt.close();
+            if (con != null) con.close();
+        } catch (SQLException e) {
+            JOptionPane.showMessageDialog(null, "Error closing resources: " + e.getMessage());
+        }
+    }
+}
+    
+    public String getUserId(String username) {
+        dbConnector dbc = new dbConnector();
+        String sql = "SELECT u_id FROM tbl_users WHERE u_username = ?";
+        String userId = null;
+
+        try (Connection connection = dbc.getConnection();
+             PreparedStatement pstmt = connection.prepareStatement(sql)) {
+
+            pstmt.setString(1, username);
+            try (ResultSet rs = pstmt.executeQuery()) {
+                if (rs.next()) {
+                    userId = rs.getString("u_id");
+                }
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return userId;
+    }
+    
+    
+     
 
     @SuppressWarnings("unchecked")
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
@@ -78,6 +138,8 @@ public class loginForm extends javax.swing.JFrame {
         jButton1 = new javax.swing.JButton();
         jButton2 = new javax.swing.JButton();
         jLabel4 = new javax.swing.JLabel();
+        jPanel3 = new javax.swing.JPanel();
+        jLabel10 = new javax.swing.JLabel();
         jPanel2 = new javax.swing.JPanel();
         jLabel5 = new javax.swing.JLabel();
         jLabel6 = new javax.swing.JLabel();
@@ -119,7 +181,7 @@ public class loginForm extends javax.swing.JFrame {
                 jButton1ActionPerformed(evt);
             }
         });
-        jPanel1.add(jButton1, new org.netbeans.lib.awtextra.AbsoluteConstraints(170, 270, 90, 32));
+        jPanel1.add(jButton1, new org.netbeans.lib.awtextra.AbsoluteConstraints(170, 290, 90, 32));
 
         jButton2.setBackground(new java.awt.Color(0, 102, 102));
         jButton2.setText("EXIT");
@@ -129,7 +191,7 @@ public class loginForm extends javax.swing.JFrame {
                 jButton2ActionPerformed(evt);
             }
         });
-        jPanel1.add(jButton2, new org.netbeans.lib.awtextra.AbsoluteConstraints(27, 270, 79, 32));
+        jPanel1.add(jButton2, new org.netbeans.lib.awtextra.AbsoluteConstraints(30, 290, 79, 32));
 
         jLabel4.setFont(new java.awt.Font("Tahoma", 1, 14)); // NOI18N
         jLabel4.setForeground(new java.awt.Color(153, 153, 255));
@@ -139,7 +201,20 @@ public class loginForm extends javax.swing.JFrame {
                 jLabel4MouseClicked(evt);
             }
         });
-        jPanel1.add(jLabel4, new org.netbeans.lib.awtextra.AbsoluteConstraints(51, 320, -1, -1));
+        jPanel1.add(jLabel4, new org.netbeans.lib.awtextra.AbsoluteConstraints(50, 350, -1, -1));
+
+        jPanel3.setBackground(new java.awt.Color(204, 204, 204));
+        jPanel3.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                jPanel3MouseClicked(evt);
+            }
+        });
+        jPanel3.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
+
+        jLabel10.setText("Forgot Password");
+        jPanel3.add(jLabel10, new org.netbeans.lib.awtextra.AbsoluteConstraints(20, 0, -1, 20));
+
+        jPanel1.add(jPanel3, new org.netbeans.lib.awtextra.AbsoluteConstraints(90, 260, 130, 20));
 
         getContentPane().add(jPanel1, new org.netbeans.lib.awtextra.AbsoluteConstraints(398, 0, 300, 422));
 
@@ -172,27 +247,32 @@ public class loginForm extends javax.swing.JFrame {
     }// </editor-fold>//GEN-END:initComponents
 
     private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton1ActionPerformed
-        if(loginAcc(user.getText(),pass.getText())){
-            if(!status.equals("Active")){
-            JOptionPane.showMessageDialog(null, "In-Active Account, Contact the Admin!");
-            }else{
-                if(type.equals("Admin")){
-                JOptionPane.showMessageDialog(null, "Login Success!");
-                adminDashboard ads = new adminDashboard();
-                ads.setVisible(true);
-                this.dispose(); 
-            }else if(type.equals("User")){
-                JOptionPane.showMessageDialog(null, "Login Success!");
-                usersDashboard usd = new usersDashboard();
-                usd.setVisible(true);
-                this.dispose();     
-           }else{
-            JOptionPane.showMessageDialog(null, "No account type found, Contact the Admin!");                                 
+        String username = user.getText();
+    String password = new String(pass.getText());
+
+        if (loginAcc(username, password)) {
+            Session sess = Session.getInstance();
+            int userId = sess.getUid();
+
+            if (!status.equals("Active")) {
+                JOptionPane.showMessageDialog(null, "In-Active Account, Contact the Admin!");
+                logEvent(userId, username, "Failed - Inactive Account");
+            } else {
+                if (type.equals("Admin")) {
+                    JOptionPane.showMessageDialog(null, "Login Success! Welcome Admin.");
+                    new adminDashboard().setVisible(true);
+                    logEvent(userId, username, "Success - Admin Login");
+                } else if (type.equals("User")) {
+                    JOptionPane.showMessageDialog(null, "Login Success! Welcome User.");
+                    new usersDashboard().setVisible(true);
+                    logEvent(userId, username, "Success - User Login");
+                }
+                this.dispose();
             }
-         }
-        }else{
-            JOptionPane.showMessageDialog(null, "Invalid Account!");
-        }    
+        } else {
+            JOptionPane.showMessageDialog(null, "Invalid Username or Password!");
+            logEvent(-1, username, "Failed - Invalid Login");
+        } 
     }//GEN-LAST:event_jButton1ActionPerformed
 
     private void jLabel4MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jLabel4MouseClicked
@@ -208,6 +288,11 @@ public class loginForm extends javax.swing.JFrame {
     private void jButton2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton2ActionPerformed
         System.exit(0);
     }//GEN-LAST:event_jButton2ActionPerformed
+
+    private void jPanel3MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jPanel3MouseClicked
+     new ForgetPassword().setVisible(true); // Open ForgotPassword form
+          dispose();        // TODO add your handling code here:
+    }//GEN-LAST:event_jPanel3MouseClicked
 
     /**
      * @param args the command line arguments
@@ -248,6 +333,7 @@ public class loginForm extends javax.swing.JFrame {
     private javax.swing.JButton jButton1;
     private javax.swing.JButton jButton2;
     private javax.swing.JLabel jLabel1;
+    private javax.swing.JLabel jLabel10;
     private javax.swing.JLabel jLabel2;
     private javax.swing.JLabel jLabel3;
     private javax.swing.JLabel jLabel4;
@@ -255,8 +341,11 @@ public class loginForm extends javax.swing.JFrame {
     private javax.swing.JLabel jLabel6;
     private javax.swing.JLabel jLabel7;
     private javax.swing.JLabel jLabel8;
+    private javax.swing.JLabel jLabel9;
     private javax.swing.JPanel jPanel1;
     private javax.swing.JPanel jPanel2;
+    private javax.swing.JPanel jPanel3;
+    private javax.swing.JPanel jPanel7;
     private javax.swing.JTextField pass;
     private javax.swing.JTextField user;
     // End of variables declaration//GEN-END:variables
