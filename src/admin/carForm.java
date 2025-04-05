@@ -49,23 +49,131 @@ public class carForm extends javax.swing.JFrame {
         public String oldpath;
         public String path;
     
+        
  
         
     public void displayData() {
         try {
             dbConnector dbc = new dbConnector();
-            // Select only from tbl_cars
-            ResultSet rs = dbc.getData("SELECT c_id, c_name, c_model, c_price, c_quantity, c_status FROM tbl_cars");
             // Update the table model with the new result set
-            carsTable.setModel(DbUtils.resultSetToTableModel(rs));
-            rs.close();
+            try ( // Select only from tbl_cars
+                    ResultSet rs = dbc.getData("SELECT c_id, c_name, c_model, c_price, c_quantity, c_status FROM tbl_cars")) {
+                // Update the table model with the new result set
+                carsTable.setModel(DbUtils.resultSetToTableModel(rs));
+            }
         } catch (SQLException ex) {
             System.out.println("Errors: " + ex.getMessage());
         }
     }
     
-    
-    
+   public static void insertCars() {
+        Connection connector = null;
+        PreparedStatement preparedStatement = null;
+
+        try {
+            // Get a connection to the database
+            connector = dbConnector.getConnection();  // Use dbConnector class to get connection
+
+            // SQL query to insert the data
+            String sql = "INSERT INTO tbl_cars (c_name, c_model, c_price, c_quantity, c_status) "
+                    + "VALUES (?, ?, ?, ?, ?)";
+
+            // Prepare the statement
+            preparedStatement = connector.prepareStatement(sql);
+
+            // Set the values for the placeholders
+            preparedStatement.setString(1, "Car 1");           // Set c_name
+            preparedStatement.setString(2, "Model A");         // Set c_model
+            preparedStatement.setDouble(3, 25000.00);          // Set c_price
+            preparedStatement.setInt(4, 10);                   // Set c_quantity
+            preparedStatement.setString(5, "Available");       // Set c_status
+
+            // Execute the insert
+            preparedStatement.executeUpdate();
+
+            // Insert the second car
+            preparedStatement.setString(1, "Car 2");
+            preparedStatement.setString(2, "Model B");
+            preparedStatement.setDouble(3, 30000.00);
+            preparedStatement.setInt(4, 5);
+            preparedStatement.setString(5, "Available");
+
+            // Execute the second insert
+            preparedStatement.executeUpdate();
+
+            System.out.println("Cars inserted successfully!");
+        } catch (SQLException e) {
+            e.printStackTrace();
+        } finally {
+            // Close resources
+            try {
+                if (preparedStatement != null) preparedStatement.close();
+                if (connector != null) connector.close();
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
+        }
+   }
+   
+    public void logCarAddition(String carName) {
+    try (Connection con = dbConnector.getConnection()) {
+        Session sess = Session.getInstance();
+
+        String insertLogQuery = "INSERT INTO tbl_log (u_id, u_username, login_time, u_type, log_status, log_description) " +
+                                "VALUES (?, ?, CURRENT_TIMESTAMP, ?, ?, ?)";
+
+        try (PreparedStatement pst = con.prepareStatement(insertLogQuery)) {
+            pst.setInt(1, sess.getUid()); // u_id
+            pst.setString(2, sess.getUsername()); // u_username
+            pst.setString(3, sess.getType()); // u_type
+            pst.setString(4, "Active"); // log_status
+           pst.setString(5, sess.getUsername() + " added a new car: " + carName);
+
+
+            pst.executeUpdate();
+        }
+    } catch (SQLException e) {
+        System.out.println("Failed to log car addition: " + e.getMessage());
+    }
+}
+    public void logCarDeletion(String carName) {
+    try (Connection con = dbConnector.getConnection()) {
+        Session sess = Session.getInstance();
+        String insertLogQuery = "INSERT INTO tbl_log (u_id, u_username, login_time, u_type, log_status, log_description) " +
+                                "VALUES (?, ?, CURRENT_TIMESTAMP, ?, 'Active', ?)";
+        
+        try (PreparedStatement pst = con.prepareStatement(insertLogQuery)) {
+            pst.setInt(1, sess.getUid());
+            pst.setString(2, sess.getUsername());
+            pst.setString(3, sess.getType());
+            pst.setString(4, "Admin deleted a car: " + carName);
+
+            pst.executeUpdate();
+        }
+    } catch (SQLException e) {
+        System.out.println("Failed to log car deletion: " + e.getMessage());
+    }
+}
+
+    public void logCarUpdate(String carName) {
+    try (Connection con = dbConnector.getConnection()) {
+        Session sess = Session.getInstance();
+        String insertLogQuery = "INSERT INTO tbl_log (u_id, u_username, login_time, u_type, log_status, log_description) " +
+                                "VALUES (?, ?, CURRENT_TIMESTAMP, ?, 'Active', ?)";
+
+        try (PreparedStatement pst = con.prepareStatement(insertLogQuery)) {
+            pst.setInt(1, sess.getUid());
+            pst.setString(2, sess.getUsername());
+            pst.setString(3, sess.getType());
+            pst.setString(4, "Admin updated car: " + carName); // ✅ Log details
+
+            pst.executeUpdate();
+        }
+    } catch (SQLException e) {
+        System.out.println("Failed to log car update: " + e.getMessage());
+    }
+}
+
     /**
      * This method is called from within the constructor to initialize the form.
      * WARNING: Do NOT modify this code. The content of this method is always
@@ -419,152 +527,173 @@ public class carForm extends javax.swing.JFrame {
     private void updateActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_updateActionPerformed
 // Ensure destination and oldpath are initialized with default values
 String defaultPath = "src/usersimages/";
-if (destination == null || destination.isEmpty()) {
-    destination = defaultPath;
-}
+    if (destination == null || destination.isEmpty()) destination = defaultPath;
+    if (oldpath == null || oldpath.isEmpty()) oldpath = defaultPath;
 
-if (oldpath == null || oldpath.isEmpty()) {
-    oldpath = defaultPath;
-}
-
-if (cid.getText().isEmpty()) {
-    JOptionPane.showMessageDialog(null, "Please select a car first!");
-} else {
-    if (cname.getText().isEmpty() || cm.getText().isEmpty() || cp.getText().isEmpty()) {
-        JOptionPane.showMessageDialog(null, "c_name, c_model, and c_price fields are required!");
-    } else {
-        dbConnector dbc = new dbConnector();
-
-        // Retrieve the current quantity and image path from the database
-        int currentQty = 0;
-        String existingImagePath = "";
-        try {
-            ResultSet rs = dbc.getData("SELECT c_quantity, c_image FROM tbl_cars WHERE c_id = '" + cid.getText() + "'");
-            if (rs.next()) {
-                currentQty = rs.getInt("quantity");
-                existingImagePath = rs.getString("c_image");
-            }
-            rs.close();
-        } catch (SQLException ex) {
-            System.err.println("Error retrieving current quantity and image path: " + ex.getMessage());
-        }
-
-        // Determine the c_status based on quantity
-        String status;
-        int qty = currentQty;
-        if (!quantity.getText().isEmpty()) {
-            qty = Integer.parseInt(quantity.getText());
-        }
-        status = (qty < 1) ? "Out of Stock" : "Available";
-
-        // Define the c_image value
-        String c_image = existingImagePath;
-
-        // Construct the SQL update query
-        StringBuilder updateQuery = new StringBuilder("UPDATE tbl_cars SET ");
-        updateQuery.append("c_name = '").append(cname.getText()).append("', ");
-        updateQuery.append("c_model = '").append(cm.getText()).append("', ");
-        updateQuery.append("c_price = '").append(cp.getText()).append("', ");
-        updateQuery.append("c_status = '").append(status).append("', ");
-        updateQuery.append("c_image = '").append(c_image).append("'");
-
-        // Only update quantity if it's not empty
-        if (!quantity.getText().isEmpty()) {
-            updateQuery.append(", quantity = '").append(quantity.getText()).append("'");
-        }
-
-        updateQuery.append(" WHERE c_id = '").append(cid.getText()).append("'");
-
-        // Execute the update query
-        dbc.updateData(updateQuery.toString());
-
-        displayData();
-        checkadd = true;
-        cid.setText("");
-        cname.setText("");
-        cm.setText("");
-        cp.setText("");
-        quantity.setText("");
-        cstat.setSelectedIndex(0);
-
-        adminDashboard ad = new adminDashboard();
-        ad.setVisible(true);
-        this.dispose();
+    if (cid.getText().isEmpty()) {
+        JOptionPane.showMessageDialog(null, "Please select a car first!");
+        return;
     }
-}
+
+    if (cname.getText().isEmpty() || cm.getText().isEmpty() || cp.getText().isEmpty()) {
+        JOptionPane.showMessageDialog(null, "Car name, model, and price are required!");
+        return;
+    }
+
+    dbConnector dbc = new dbConnector();
+    int currentQty = 0;
+    String existingImagePath = "";
+
+    try {
+        ResultSet rs = dbc.getData("SELECT c_quantity, c_image FROM tbl_cars WHERE c_id = '" + cid.getText() + "'");
+        if (rs.next()) {
+            currentQty = rs.getInt("c_quantity"); // FIXED column name
+            existingImagePath = rs.getString("c_image");
+        }
+        rs.close();
+    } catch (SQLException ex) {
+        System.err.println("Error: " + ex.getMessage());
+    }
+
+    // Quantity and status logic
+    int qty = currentQty;
+    if (!quantity.getText().isEmpty()) {
+        qty = Integer.parseInt(quantity.getText());
+    }
+    String status = (qty < 1) ? "Out of Stock" : "Available"; // or use: cstat.getSelectedItem().toString()
+
+    String c_image = existingImagePath;
+
+    // Build update query
+    StringBuilder updateQuery = new StringBuilder("UPDATE tbl_cars SET ");
+    updateQuery.append("c_name = '").append(cname.getText()).append("', ");
+    updateQuery.append("c_model = '").append(cm.getText()).append("', ");
+    updateQuery.append("c_price = '").append(cp.getText()).append("', ");
+    updateQuery.append("c_status = '").append(status).append("', ");
+    updateQuery.append("c_image = '").append(c_image).append("'");
+
+    if (!quantity.getText().isEmpty()) {
+        updateQuery.append(", c_quantity = '").append(quantity.getText()).append("'");
+    }
+
+    updateQuery.append(" WHERE c_id = '").append(cid.getText()).append("'");
+
+    dbc.updateData(updateQuery.toString());
+
+    JOptionPane.showMessageDialog(null, "Car record updated!");
+    displayData();
+    checkadd = true;
+
+    // Reset form
+    cid.setText("");
+    cname.setText("");
+    cm.setText("");
+    cp.setText("");
+    quantity.setText("");
+    cstat.setSelectedIndex(0);
+    adds.setEnabled(true);
+    adds.setForeground(Color.BLACK);
+    
+    logCarUpdate(cname.getText());
+
+
+    // Stay on same page; remove dashboard redirect unless needed
+    // adminDashboard ad = new adminDashboard();
+    // ad.setVisible(true);
+    // this.dispose();
     }//GEN-LAST:event_updateActionPerformed
 
     private void carsTableMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_carsTableMouseClicked
-    int rowIndex = carsTable.getSelectedRow();
-    
-    if(rowIndex < 0){
-        JOptionPane.showMessageDialog(null, "Please Select an Item!");
-    }else{
-        try{
-            dbConnector dbc = new dbConnector();
-            TableModel tbl = carsTable.getModel();
-            ResultSet rs = dbc.getData("SELECT * FROM tbl_cars WHERE c_id = '"+tbl.getValueAt(rowIndex, 0)+"'");
-            if(rs.next()){
-            
-                cid.setText(""+rs.getString("c_id"));
-                cname.setText(""+rs.getString("c_name"));
-                cm.setText(""+rs.getString("c_model"));
-                cp.setText(""+rs.getString("c_price"));
-                cstat.setSelectedItem(""+rs.getString("c_status"));
-                adds.setEnabled(false);
-                adds.setForeground(red);
-                checkadd = false;
+  int rowIndex = carsTable.getSelectedRow();
 
-            }
-        }catch(SQLException ex){
-         System.out.println(""+ex);       
+if (rowIndex < 0) {
+    JOptionPane.showMessageDialog(null, "Please select a car to load.");
+} else {
+    try {
+        dbConnector dbc = new dbConnector();
+        TableModel tbl = carsTable.getModel();
+        String selectedCarId = tbl.getValueAt(rowIndex, 0).toString(); // Make sure column 0 is c_id
+
+        ResultSet rs = dbc.getData("SELECT * FROM tbl_cars WHERE c_id = '" + selectedCarId + "'");
+
+        if (rs.next()) {
+            cid.setText(rs.getString("c_id"));
+            cname.setText(rs.getString("c_name"));
+            cm.setText(rs.getString("c_model"));
+            cp.setText(rs.getString("c_price"));
+            cstat.setSelectedItem(rs.getString("c_status"));
+            quantity.setText(rs.getString("c_quantity")); // <-- Don't forget this!
+
+            // Optional: highlight update mode
+            adds.setEnabled(false); // disable add
+            adds.setForeground(Color.RED); // highlight add as inactive
+            checkadd = false;
         }
+
+    } catch (SQLException ex) {
+        JOptionPane.showMessageDialog(null, "Error loading data: " + ex.getMessage());
     }
+}
     }//GEN-LAST:event_carsTableMouseClicked
 
     private void addsActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_addsActionPerformed
-if (checkadd) {
-    if (cname.getText().isEmpty() || cm.getText().isEmpty() || cp.getText().isEmpty() || quantity.getText().isEmpty()) {
-        JOptionPane.showMessageDialog(null, "All fields including quantity are required!");
-    } else { 
-        dbConnector dbc = new dbConnector();
-        dbc.insertData("INSERT INTO tbl_cars (c_name, c_model, c_price, c_status, c_image, quantity) VALUES ('" + cname.getText() + "','" + cm.getText() + "','" + cp.getText() + "','" + cstat.getSelectedItem() + "','', '" + quantity.getText() + "')");
-        JOptionPane.showMessageDialog(null, "Successfully Added!");
-        displayData();
-        checkadd = true;
-        cid.setText("");
-        cname.setText("");
-        cm.setText("");
-        cp.setText("");
-        cstat.setSelectedIndex(0);
-        quantity.setText(""); // Clear quantity field after insertion
+ if (checkadd) {
+        if (cname.getText().isEmpty() || cm.getText().isEmpty() || cp.getText().isEmpty() || quantity.getText().isEmpty()) {
+            JOptionPane.showMessageDialog(null, "All fields including quantity are required!");
+        } else { 
+            dbConnector dbc = new dbConnector();
+
+            // Insert new car into tbl_cars
+            dbc.insertData("INSERT INTO tbl_cars (c_name, c_model, c_price, c_status, c_image, c_quantity) " +
+                           "VALUES ('" + cname.getText() + "','" + cm.getText() + "','" + cp.getText() + "','" + cstat.getSelectedItem() + "','', '" + quantity.getText() + "')");
+
+            // ✅ Log the action
+            logCarAddition(cname.getText());  // <-- Add this line to log
+
+            JOptionPane.showMessageDialog(null, "Successfully Added!");
+            displayData();
+            checkadd = true;
+
+            // Clear fields
+            cid.setText("");
+            cname.setText("");
+            cm.setText("");
+            cp.setText("");
+            cstat.setSelectedIndex(0);
+            quantity.setText("");
+        }
+    } else {
+        JOptionPane.showMessageDialog(null, "Clear the field first!");
     }
-} else {
-    JOptionPane.showMessageDialog(null, "Clear the field first!");
-}
 
     }//GEN-LAST:event_addsActionPerformed
 
     private void deleteActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_deleteActionPerformed
-    int selectedRow = carsTable.getSelectedRow();
-    if (selectedRow == -1) {
-        JOptionPane.showMessageDialog(null, "Please select a row to delete!");
-        return; // Exit the method if no row is selected
-    }
+  int selectedRow = carsTable.getSelectedRow();
+if (selectedRow == -1) {
+    JOptionPane.showMessageDialog(null, "Please select a row to delete!");
+    return;
+}
 
-    int confirm = JOptionPane.showConfirmDialog(null, "Are you sure you want to delete this record?", "Confirmation", JOptionPane.YES_NO_OPTION);
-    if (confirm == JOptionPane.YES_OPTION) {
-        String carIdToDelete = carsTable.getValueAt(selectedRow, 0).toString(); // Assuming the first column contains the car ID
-        dbConnector dbc = new dbConnector();
-        String deleteQuery = "DELETE FROM tbl_cars WHERE c_id = '" + carIdToDelete + "'";
-        dbc.updateData(deleteQuery);
+int confirm = JOptionPane.showConfirmDialog(null, "Are you sure you want to delete this record?", "Confirmation", JOptionPane.YES_NO_OPTION);
+if (confirm == JOptionPane.YES_OPTION) {
+    String carIdToDelete = carsTable.getValueAt(selectedRow, 0).toString(); // Assuming 0 = car ID
+    String carName = carsTable.getValueAt(selectedRow, 1).toString();       // Assuming 1 = car name
 
-        // Remove the selected row from the table
-        DefaultTableModel model = (DefaultTableModel) carsTable.getModel();
-        model.removeRow(selectedRow);
+    dbConnector dbc = new dbConnector();
+    String deleteQuery = "DELETE FROM tbl_cars WHERE c_id = '" + carIdToDelete + "'";
+    dbc.updateData(deleteQuery);
 
-        JOptionPane.showMessageDialog(null, "Record deleted successfully!");
-    }
+    // ✅ Log the deletion
+    logCarDeletion(carName);
+
+    // Remove from table view
+    DefaultTableModel model = (DefaultTableModel) carsTable.getModel();
+    model.removeRow(selectedRow);
+
+    JOptionPane.showMessageDialog(null, "Record deleted successfully!");
+}
+
     }//GEN-LAST:event_deleteActionPerformed
 
     private void acc_name1MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_acc_name1MouseClicked

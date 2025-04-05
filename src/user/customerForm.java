@@ -21,7 +21,7 @@ import net.proteanit.sql.DbUtils;
  *
  * @author Bentastic
  */
-public class customerForm extends javax.swing.JFrame {
+public final class customerForm extends javax.swing.JFrame {
 
     /**
      * Creates new form adminDashboard
@@ -31,17 +31,21 @@ public class customerForm extends javax.swing.JFrame {
         displayData();
     }
 
-        public void displayData(){
-        try{
-            dbConnector dbc = new dbConnector();
-            ResultSet rs = dbc.getData("SELECT c_id, c_name, c_model, c_price, c_status FROM tbl_cars");
+       public void displayData() {
+    try {
+        dbConnector dbc = new dbConnector();
+        ResultSet rs = dbc.getData("SELECT c_id, c_name, c_model, c_price, c_status FROM tbl_cars WHERE c_status = 'Available'");
+
+        if (rs != null) {
             oTable.setModel(DbUtils.resultSetToTableModel(rs));
-             rs.close();
-        }catch(SQLException ex){
-            System.out.println("Errors: "+ex.getMessage());
-        
+        } else {
+            JOptionPane.showMessageDialog(this, "No cars found.");
         }
+    } catch (SQLException ex) {
+        JOptionPane.showMessageDialog(this, "Error: " + ex.getMessage());
     }
+}
+
     
     Color navcolor = new Color(255,255,255);
     Color hovercolor = new Color(153,204,255);
@@ -203,24 +207,29 @@ public class customerForm extends javax.swing.JFrame {
     }//GEN-LAST:event_oTableMouseClicked
 
     private void jButton5ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton5ActionPerformed
-
+        this.dispose();
     }//GEN-LAST:event_jButton5ActionPerformed
 
     private void jButton4ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton4ActionPerformed
-        int rowIndex = oTable.getSelectedRow();
-        if(rowIndex < 0){
-            JOptionPane.showMessageDialog(null, "Please select an item!");
-        }else{
-            TableModel model = oTable.getModel();
-            tranSactions of = new tranSactions();
-            of.cid.setText(""+model.getValueAt(rowIndex, 0));
-            of.cn.setText(""+model.getValueAt(rowIndex, 1));     
-            of.cm.setText(""+model.getValueAt(rowIndex, 2));  
-            of.fs.setText(""+model.getValueAt(rowIndex, 3));
-            of.setVisible(true);
-            this.dispose();
-            of.setVisible(true);
-            this.dispose();
+       int rowIndex = oTable.getSelectedRow();
+    if (rowIndex < 0) {
+        JOptionPane.showMessageDialog(null, "Please select an item!");
+    } else {
+        TableModel model = oTable.getModel();
+        tranSactions of = new tranSactions();
+        of.cid.setText(model.getValueAt(rowIndex, 0).toString());
+        of.cn.setText(model.getValueAt(rowIndex, 1).toString());
+        of.cm.setText(model.getValueAt(rowIndex, 2).toString());
+        of.fs.setText(model.getValueAt(rowIndex, 3).toString());
+        of.setVisible(true);
+        this.dispose();
+        
+        
+        int result = JOptionPane.showConfirmDialog(null, "Proceed with this car?", "Confirm", JOptionPane.YES_NO_OPTION);
+        if(result == JOptionPane.YES_OPTION){
+    // open tranSactions
+     }
+    
     }//GEN-LAST:event_jButton4ActionPerformed
     }
     /**

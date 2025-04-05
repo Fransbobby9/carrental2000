@@ -275,6 +275,8 @@ private JComboBox<String> type;
         acc_id = new javax.swing.JLabel();
         acc_name1 = new javax.swing.JLabel();
         aa = new javax.swing.JLabel();
+        print = new javax.swing.JPanel();
+        jLabel5 = new javax.swing.JLabel();
         jPanel3 = new javax.swing.JPanel();
         jScrollPane1 = new javax.swing.JScrollPane();
         user_table = new javax.swing.JTable();
@@ -326,48 +328,63 @@ private JComboBox<String> type;
         );
 
         jPanel2.setBackground(new java.awt.Color(51, 51, 255));
+        jPanel2.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
 
         jLabel11.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
         jLabel11.setIcon(new javax.swing.ImageIcon(getClass().getResource("/images/icons8-user-50.png"))); // NOI18N
         jLabel11.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(0, 0, 0), 2));
+        jPanel2.add(jLabel11, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 34, 124, 58));
 
         acc_id.setFont(new java.awt.Font("Tahoma", 1, 14)); // NOI18N
         acc_id.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
         acc_id.setText("ID");
+        jPanel2.add(acc_id, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 432, 124, 24));
 
         acc_name1.setFont(new java.awt.Font("Tahoma", 1, 14)); // NOI18N
         acc_name1.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
         acc_name1.setText("USERS");
+        jPanel2.add(acc_name1, new org.netbeans.lib.awtextra.AbsoluteConstraints(12, 99, 100, 24));
 
         aa.setFont(new java.awt.Font("Tahoma", 1, 14)); // NOI18N
         aa.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
         aa.setText("Current User:");
+        jPanel2.add(aa, new org.netbeans.lib.awtextra.AbsoluteConstraints(12, 395, 100, 24));
 
-        javax.swing.GroupLayout jPanel2Layout = new javax.swing.GroupLayout(jPanel2);
-        jPanel2.setLayout(jPanel2Layout);
-        jPanel2Layout.setHorizontalGroup(
-            jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(acc_id, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-            .addGroup(jPanel2Layout.createSequentialGroup()
+        print.setBackground(new java.awt.Color(255, 255, 255));
+        print.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                printMouseClicked(evt);
+            }
+            public void mouseEntered(java.awt.event.MouseEvent evt) {
+                printMouseEntered(evt);
+            }
+            public void mouseExited(java.awt.event.MouseEvent evt) {
+                printMouseExited(evt);
+            }
+        });
+
+        jLabel5.setFont(new java.awt.Font("Tahoma", 1, 14)); // NOI18N
+        jLabel5.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
+        jLabel5.setText("PRINT");
+
+        javax.swing.GroupLayout printLayout = new javax.swing.GroupLayout(print);
+        print.setLayout(printLayout);
+        printLayout.setHorizontalGroup(
+            printLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, printLayout.createSequentialGroup()
                 .addContainerGap()
-                .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(acc_name1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                    .addComponent(aa, javax.swing.GroupLayout.DEFAULT_SIZE, 100, Short.MAX_VALUE))
+                .addComponent(jLabel5, javax.swing.GroupLayout.DEFAULT_SIZE, 96, Short.MAX_VALUE)
                 .addContainerGap())
-            .addComponent(jLabel11, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
         );
-        jPanel2Layout.setVerticalGroup(
-            jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(jPanel2Layout.createSequentialGroup()
-                .addGap(34, 34, 34)
-                .addComponent(jLabel11, javax.swing.GroupLayout.PREFERRED_SIZE, 58, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(acc_name1, javax.swing.GroupLayout.PREFERRED_SIZE, 24, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 272, Short.MAX_VALUE)
-                .addComponent(aa, javax.swing.GroupLayout.PREFERRED_SIZE, 24, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                .addComponent(acc_id, javax.swing.GroupLayout.PREFERRED_SIZE, 24, javax.swing.GroupLayout.PREFERRED_SIZE))
+        printLayout.setVerticalGroup(
+            printLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, printLayout.createSequentialGroup()
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addComponent(jLabel5)
+                .addContainerGap())
         );
+
+        jPanel2.add(print, new org.netbeans.lib.awtextra.AbsoluteConstraints(2, 206, 120, -1));
 
         jPanel3.setBackground(new java.awt.Color(255, 255, 255));
 
@@ -540,6 +557,43 @@ private JComboBox<String> type;
         deleteUser();
     }//GEN-LAST:event_register1ActionPerformed
 
+    private void printMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_printMouseClicked
+        int rowIndex = user_table.getSelectedRow();
+
+        if(rowIndex < 0){
+            JOptionPane.showMessageDialog(null, "Please Select an Item!");
+        }else{
+            try{
+                dbConnector dbc = new dbConnector();
+                TableModel tbl = user_table.getModel();
+                ResultSet rs = dbc.getData("SELECT * FROM tbl_user WHERE u_id = '"+tbl.getValueAt(rowIndex, 0)+"'");
+                if(rs.next()){
+                    IndividualPrinting ipt = new IndividualPrinting();
+                    ipt.uid.setText(""+rs.getInt("u_id"));
+                    ipt.fn.setText(""+rs.getString("u_fname"));
+                    ipt.ln.setText(""+rs.getString("u_lname"));
+                    ipt.em.setText(""+rs.getString("u_email"));
+                    ipt.un.setText(""+rs.getString("u_name"));
+                    ipt.ut.setText(""+rs.getString("u_type"));
+                    ipt.us.setText(""+rs.getString("u_status"));
+                    ipt.image.setIcon(ipt.ResizeImage(rs.getString("u_image"),null, ipt.image));
+                    ipt.setVisible(true);
+                    this.dispose();
+                }
+            }catch(SQLException ex){
+                System.out.println(""+ex);
+            }
+        }
+    }//GEN-LAST:event_printMouseClicked
+
+    private void printMouseEntered(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_printMouseEntered
+        // TODO add your handling code here:
+    }//GEN-LAST:event_printMouseEntered
+
+    private void printMouseExited(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_printMouseExited
+        // TODO add your handling code here:
+    }//GEN-LAST:event_printMouseExited
+
     /**
      * @param args the command line arguments
      */
@@ -584,10 +638,12 @@ private JComboBox<String> type;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel11;
     private javax.swing.JLabel jLabel2;
+    private javax.swing.JLabel jLabel5;
     private javax.swing.JPanel jPanel1;
     private javax.swing.JPanel jPanel2;
     private javax.swing.JPanel jPanel3;
     private javax.swing.JScrollPane jScrollPane1;
+    private javax.swing.JPanel print;
     private javax.swing.JButton register1;
     private javax.swing.JButton update;
     private javax.swing.JTable user_table;

@@ -39,7 +39,7 @@ public class loginForm extends javax.swing.JFrame {
         dbConnector connector = new dbConnector();
         String query = "SELECT * FROM tbl_users WHERE u_username = ?";
 
-        try (Connection connection = connector.getConnection();
+        try (Connection connection = dbConnector.getConnection();
              PreparedStatement stmt = connection.prepareStatement(query)) {
 
             stmt.setString(1, username);
@@ -67,7 +67,8 @@ public class loginForm extends javax.swing.JFrame {
                 }
             }
         } catch (SQLException | NoSuchAlgorithmException ex) {
-            ex.printStackTrace(); // Log the error for debugging
+            // Log the error for debugging
+            
         }
         return false;
     }
@@ -75,8 +76,8 @@ public class loginForm extends javax.swing.JFrame {
 
     
     public void logEvent(int userId, String username, String userType) {
-    dbConnector dbc = new dbConnector();
-    Connection con = dbc.getConnection();
+    dbConnector db = new dbConnector();
+    Connection con = dbConnector.getConnection();
     PreparedStatement pstmt = null;
 
     try {
@@ -107,7 +108,7 @@ public class loginForm extends javax.swing.JFrame {
         String sql = "SELECT u_id FROM tbl_users WHERE u_username = ?";
         String userId = null;
 
-        try (Connection connection = dbc.getConnection();
+        try (Connection connection = dbConnector.getConnection();
              PreparedStatement pstmt = connection.prepareStatement(sql)) {
 
             pstmt.setString(1, username);
@@ -117,7 +118,6 @@ public class loginForm extends javax.swing.JFrame {
                 }
             }
         } catch (SQLException e) {
-            e.printStackTrace();
         }
         return userId;
     }
@@ -248,7 +248,7 @@ public class loginForm extends javax.swing.JFrame {
 
     private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton1ActionPerformed
         String username = user.getText();
-    String password = new String(pass.getText());
+    String password = pass.getText();
 
         if (loginAcc(username, password)) {
             Session sess = Session.getInstance();

@@ -13,7 +13,7 @@ public class dbConnector {
     private static final String USER = "root";
     private static final String PASSWORD = "";
 
-    public Connection connect;
+    private static Connection connect = null;
 
     // Constructor to establish the database connection
     public dbConnector() {
@@ -26,9 +26,10 @@ public class dbConnector {
     }
 
     // Provide a public method to get the connection
-    public Connection getConnection() {
+    public static Connection getConnection() {
         return connect;
     }
+
 
     // Function to retrieve data
     public ResultSet getData(String sql) throws SQLException {

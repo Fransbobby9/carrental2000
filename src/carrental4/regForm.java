@@ -64,7 +64,7 @@ public class regForm extends javax.swing.JFrame {
     
      public void logEvent(int userId, String username, String userType) {
     dbConnector dbc = new dbConnector();
-    Connection con = dbc.getConnection();
+    Connection con = dbConnector.getConnection();
     PreparedStatement pstmt = null;
 
     try {
@@ -354,7 +354,7 @@ public class regForm extends javax.swing.JFrame {
         String query = "INSERT INTO tbl_users (u_fname, u_lname, u_email, u_username, u_password, security_question, security_answer, u_type, u_image, u_status) "
                 + "VALUES (?, ?, ?, ?, ?, ?, ?, ?, 'Null', 'Pending')";
 
-        try (Connection con = dbc.getConnection();
+        try (Connection con = dbConnector.getConnection();
              PreparedStatement stmt = con.prepareStatement(query)) {
             stmt.setString(1, fn.getText());
             stmt.setString(2, ln.getText());

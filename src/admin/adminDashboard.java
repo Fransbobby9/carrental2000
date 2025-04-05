@@ -44,41 +44,24 @@ public class adminDashboard extends javax.swing.JFrame {
     Color navcolor = new Color(255,255,255);
     Color hovercolor = new Color(153,204,255);
 
-  private void loadLogs() {
-      Session sess = Session.getInstance();
+ private void loadLogs() {
+    Session sess = Session.getInstance();
     dbConnector connector = new dbConnector();
-    try (Connection con = connector.getConnection()) {
+
+    try (Connection con = dbConnector.getConnection()) {
         System.out.println("1");
-        
-        
-        
-//        try
-//        {
-//            String query = "SELECT * FROM tbl_log WHERE u_id = '"+sess.getUid()+"'";
-//            ResultSet rs = connector.getData(query);
-//            if(rs.next())
-//            {
-//                String npass = rs.getString("u_password");
-//            }
-//        }catch (SQLException ex)
-//            {
-//                System.out.println(""+ex);
-//            }
-        
-        
-        
-        
+
         // Update 'Pending' log_status to 'Active' for recent logins
         String updateQuery = "UPDATE tbl_log SET log_status = 'Active' WHERE log_status = 'Pending'";
         try (PreparedStatement updateStmt = con.prepareStatement(updateQuery)) {
             System.out.println("2");
-
             updateStmt.executeUpdate();
         }
 
-        // Fetch updated logs including logout time
+        // Fetch updated logs including logout time and description
         String selectQuery = "SELECT l.log_id, l.u_username, l.login_time, l.logout_time, l.u_type, " +
-                             "CASE WHEN u.u_username IS NULL THEN 'Invalid User' ELSE l.log_status END AS log_status " +
+                             "CASE WHEN u.u_username IS NULL THEN 'Invalid User' ELSE l.log_status END AS log_status, " +
+                             "l.log_description " +
                              "FROM tbl_log l LEFT JOIN tbl_users u ON l.u_username = u.u_username " +
                              "ORDER BY l.login_time DESC";
 
@@ -86,9 +69,9 @@ public class adminDashboard extends javax.swing.JFrame {
              ResultSet rs = stmt.executeQuery(selectQuery)) {
             System.out.println("3");
 
-
+            // Now with 7 columns including Description
             DefaultTableModel model = new DefaultTableModel(
-                new String[]{"Log ID", "Username", "Login Time", "Logout Time", "User Type", "Status"}, 0
+                new String[]{"Log ID", "Username", "Login Time", "Logout Time", "User Type", "Status", "Description"}, 0
             );
 
             while (rs.next()) {
@@ -98,9 +81,10 @@ public class adminDashboard extends javax.swing.JFrame {
                         rs.getInt("log_id"),
                         rs.getString("u_username"),
                         rs.getTimestamp("login_time"),
-                        rs.getTimestamp("logout_time"),  // Now showing logout time
+                        rs.getTimestamp("logout_time"),
                         rs.getString("u_type"),
-                        rs.getString("log_status")
+                        rs.getString("log_status"),
+                        rs.getString("log_description") // ✅ Added this line
                 });
             }
 
@@ -109,14 +93,37 @@ public class adminDashboard extends javax.swing.JFrame {
 
     } catch (SQLException ex) {
         System.out.println("5");
-
         JOptionPane.showMessageDialog(null, "Error loading logs: " + ex.getMessage());
     }
 }
+
+  public void logCarAddition(String carName) {
+    try (Connection con = dbConnector.getConnection()) {
+        Session sess = Session.getInstance();
+
+        String insertLogQuery = "INSERT INTO tbl_log (u_id, u_username, login_time, u_type, log_status, log_description) " +
+                                "VALUES (?, ?, CURRENT_TIMESTAMP, ?, ?, ?)";
+
+        try (PreparedStatement pst = con.prepareStatement(insertLogQuery)) {
+            pst.setInt(1, sess.getUid()); // u_id
+            pst.setString(2, sess.getUsername()); // u_username
+            pst.setString(3, sess.getType()); // u_type
+            pst.setString(4, "Active"); // log_status
+           pst.setString(5, sess.getUsername() + " added a new car: " + carName);
+
+
+            pst.executeUpdate();
+        }
+    } catch (SQLException e) {
+        System.out.println("Failed to log car addition: " + e.getMessage());
+    }
+}
+
+
   
   private void logoutUser(String username) {
     dbConnector connector = new dbConnector();
-    try (Connection con = connector.getConnection()) {
+    try (Connection con = dbConnector.getConnection()) {
         
         // Update log_status to "Inactive" and set logout_time
         String updateQuery = "UPDATE tbl_log SET log_status = 'Inactive', logout_time = NOW() " +
@@ -301,13 +308,13 @@ public class adminDashboard extends javax.swing.JFrame {
 
         logstbl.setModel(new javax.swing.table.DefaultTableModel(
             new Object [][] {
-                {null, null, null, null, null},
-                {null, null, null, null, null},
-                {null, null, null, null, null},
-                {null, null, null, null, null}
+                {null, null, null, null, null, null},
+                {null, null, null, null, null, null},
+                {null, null, null, null, null, null},
+                {null, null, null, null, null, null}
             },
             new String [] {
-                "log_id", "u_username", "login_time", "u_type", "log_status"
+                "log_id", "u_username", "login_time", "u_type", "log_status", "log_description"
             }
         ));
         jScrollPane1.setViewportView(logstbl);
@@ -354,10 +361,16 @@ public class adminDashboard extends javax.swing.JFrame {
     }// </editor-fold>//GEN-END:initComponents
 
     private void jLabel2MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jLabel2MouseClicked
-        loginForm ads = new loginForm();
-        JOptionPane.showMessageDialog(null, "Logout Success!");
-        ads.setVisible(true);
-        this.dispose();
+          Session sess = Session.getInstance();
+    if (sess.getUid() != 0) {
+        logoutUser(sess.getUsername());  // Log out the current user
+    }
+
+    loginForm loginFrame = new loginForm();
+    JOptionPane.showMessageDialog(null, "Log-out Success!");
+    loginFrame.setVisible(true);
+    this.dispose();
+
     }//GEN-LAST:event_jLabel2MouseClicked
 
     private void r_nameMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_r_nameMouseClicked
@@ -436,10 +449,8 @@ public class adminDashboard extends javax.swing.JFrame {
         //</editor-fold>
 
         /* Create and display the form */
-        java.awt.EventQueue.invokeLater(new Runnable() {
-            public void run() {
-                new adminDashboard().setVisible(true);
-            }
+        java.awt.EventQueue.invokeLater(() -> {
+            new adminDashboard().setVisible(true);
         });
     }
 

@@ -10,6 +10,7 @@ import carrental4.loginForm;
 import config.Session;
 import config.dbConnector;
 import java.awt.Color;
+import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -41,7 +42,7 @@ public class usersDashboard extends javax.swing.JFrame {
     String query = "SELECT u_image FROM tbl_users WHERE u_id = ?";
     
     try {
-        PreparedStatement pstmt = dbc.getConnection().prepareStatement(query);
+        PreparedStatement pstmt = dbConnector.getConnection().prepareStatement(query);
         pstmt.setInt(1, sess.getUid());
         ResultSet rs = pstmt.executeQuery();
         
@@ -55,6 +56,31 @@ public class usersDashboard extends javax.swing.JFrame {
         }
     } catch (SQLException e) {
         e.printStackTrace();
+    }
+    
+}
+   
+    private void logoutUser(String username) {
+    dbConnector connector = new dbConnector();
+    try (Connection con = dbConnector.getConnection()) {
+        
+        // Update log_status to "Inactive" and set logout_time
+        String updateQuery = "UPDATE tbl_log SET log_status = 'Inactive', logout_time = NOW() " +
+                             "WHERE u_username = ? AND log_status = 'Active'";
+        
+        try (PreparedStatement stmt = con.prepareStatement(updateQuery)) {
+            stmt.setString(1, username);
+            int updatedRows = stmt.executeUpdate();
+
+            if (updatedRows > 0) {
+                JOptionPane.showMessageDialog(null, "User " + username + " has logged out successfully!");
+            } else {
+                JOptionPane.showMessageDialog(null, "No active session found for " + username);
+            }
+        }
+
+    } catch (SQLException ex) {
+        JOptionPane.showMessageDialog(null, "Error logging out: " + ex.getMessage());
     }
 }
     
@@ -234,10 +260,16 @@ public class usersDashboard extends javax.swing.JFrame {
     }// </editor-fold>//GEN-END:initComponents
 
     private void jLabel2MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jLabel2MouseClicked
-        loginForm ads = new loginForm();
-        JOptionPane.showMessageDialog(null, "Logout Success!");
-        ads.setVisible(true);
-        this.dispose();
+          Session sess = Session.getInstance();
+    if (sess.getUid() != 0) {
+        logoutUser(sess.getUsername());  // Log out the current user
+    }
+
+    loginForm loginFrame = new loginForm();
+    JOptionPane.showMessageDialog(null, "Log-out Success!");
+    loginFrame.setVisible(true);
+    this.dispose();
+
     }//GEN-LAST:event_jLabel2MouseClicked
 
     private void formWindowActivated(java.awt.event.WindowEvent evt) {//GEN-FIRST:event_formWindowActivated
