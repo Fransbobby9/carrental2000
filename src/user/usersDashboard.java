@@ -35,14 +35,15 @@ public class usersDashboard extends javax.swing.JFrame {
     Color hovercolor = new Color(153,204,255);
     
     
-   private void loadUserProfile() {
+ 
+    private void loadUserProfile() {
     dbConnector dbc = new dbConnector();
     Session sess = Session.getInstance();
     
     String query = "SELECT u_image FROM tbl_users WHERE u_id = ?";
     
     try {
-        PreparedStatement pstmt = dbConnector.getConnection().prepareStatement(query);
+        PreparedStatement pstmt = dbc.getConnection().prepareStatement(query);
         pstmt.setInt(1, sess.getUid());
         ResultSet rs = pstmt.executeQuery();
         
@@ -57,17 +58,16 @@ public class usersDashboard extends javax.swing.JFrame {
     } catch (SQLException e) {
         e.printStackTrace();
     }
-    
 }
    
     private void logoutUser(String username) {
-    dbConnector connector = new dbConnector();
-    try (Connection con = dbConnector.getConnection()) {
-        
+    dbConnector connector = new dbConnector(); // Create the dbConnector instance
+    try (Connection con = connector.getConnection()) { // Use connector to get the connection
+
         // Update log_status to "Inactive" and set logout_time
         String updateQuery = "UPDATE tbl_log SET log_status = 'Inactive', logout_time = NOW() " +
                              "WHERE u_username = ? AND log_status = 'Active'";
-        
+
         try (PreparedStatement stmt = con.prepareStatement(updateQuery)) {
             stmt.setString(1, username);
             int updatedRows = stmt.executeUpdate();

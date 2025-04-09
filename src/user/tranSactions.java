@@ -6,8 +6,13 @@
 package user;
 
 import static com.sun.org.apache.xalan.internal.lib.ExsltDatetime.date;
+import config.dbConnector;
 import java.awt.Color;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.SQLException;
 import java.util.Date;
+import javax.swing.JOptionPane;
 
 /**
  *
@@ -20,12 +25,26 @@ public class tranSactions extends javax.swing.JFrame {
      */
     public tranSactions() {
         initComponents();
+        
+        doneButton = new javax.swing.JButton(); // Add the Done Transaction button
+        doneButton.setText("Done Transaction");
+        doneButton.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                doneButtonActionPerformed(evt);
+            }
+        });
+
        
     }
 
         Color navcolor = new Color(153,204,255);
         Color hovercolor = new Color(153,153,255);
-    
+      
+    // ... (Your other methods) ...
+
+
+        
+        
     
     
     /**
@@ -61,6 +80,7 @@ public class tranSactions extends javax.swing.JFrame {
         jButton3 = new javax.swing.JButton();
         jScrollPane2 = new javax.swing.JScrollPane();
         area = new javax.swing.JTextArea();
+        doneButton = new javax.swing.JButton();
 
         jTable1.setModel(new javax.swing.table.DefaultTableModel(
             new Object [][] {
@@ -210,19 +230,20 @@ public class tranSactions extends javax.swing.JFrame {
         area.setRows(5);
         jScrollPane2.setViewportView(area);
 
+        doneButton.setBackground(new java.awt.Color(0, 0, 0));
+        doneButton.setText("Done");
+        doneButton.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                doneButtonActionPerformed(evt);
+            }
+        });
+
         javax.swing.GroupLayout jPanel3Layout = new javax.swing.GroupLayout(jPanel3);
         jPanel3.setLayout(jPanel3Layout);
         jPanel3Layout.setHorizontalGroup(
             jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(jPanel3Layout.createSequentialGroup()
                 .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addGroup(jPanel3Layout.createSequentialGroup()
-                        .addGap(46, 46, 46)
-                        .addComponent(jButton1)
-                        .addGap(18, 18, 18)
-                        .addComponent(jButton2, javax.swing.GroupLayout.PREFERRED_SIZE, 90, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addGap(18, 18, 18)
-                        .addComponent(jButton3, javax.swing.GroupLayout.PREFERRED_SIZE, 100, javax.swing.GroupLayout.PREFERRED_SIZE))
                     .addGroup(jPanel3Layout.createSequentialGroup()
                         .addContainerGap()
                         .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
@@ -235,7 +256,16 @@ public class tranSactions extends javax.swing.JFrame {
                             .addComponent(cm, javax.swing.GroupLayout.PREFERRED_SIZE, 201, javax.swing.GroupLayout.PREFERRED_SIZE)
                             .addComponent(fs, javax.swing.GroupLayout.PREFERRED_SIZE, 201, javax.swing.GroupLayout.PREFERRED_SIZE)
                             .addComponent(cid, javax.swing.GroupLayout.PREFERRED_SIZE, 201, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addComponent(cn, javax.swing.GroupLayout.PREFERRED_SIZE, 201, javax.swing.GroupLayout.PREFERRED_SIZE))))
+                            .addComponent(cn, javax.swing.GroupLayout.PREFERRED_SIZE, 201, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                    .addGroup(jPanel3Layout.createSequentialGroup()
+                        .addGap(46, 46, 46)
+                        .addComponent(jButton1)
+                        .addGap(18, 18, 18)
+                        .addComponent(jButton2, javax.swing.GroupLayout.PREFERRED_SIZE, 90, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addGap(18, 18, 18)
+                        .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                            .addComponent(doneButton, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                            .addComponent(jButton3, javax.swing.GroupLayout.DEFAULT_SIZE, 100, Short.MAX_VALUE))))
                 .addGap(18, 18, 18)
                 .addComponent(jScrollPane2, javax.swing.GroupLayout.DEFAULT_SIZE, 236, Short.MAX_VALUE))
         );
@@ -265,9 +295,11 @@ public class tranSactions extends javax.swing.JFrame {
                         .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                             .addComponent(jButton1, javax.swing.GroupLayout.PREFERRED_SIZE, 31, javax.swing.GroupLayout.PREFERRED_SIZE)
                             .addComponent(jButton2, javax.swing.GroupLayout.PREFERRED_SIZE, 31, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addComponent(jButton3, javax.swing.GroupLayout.PREFERRED_SIZE, 31, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                            .addComponent(jButton3, javax.swing.GroupLayout.PREFERRED_SIZE, 31, javax.swing.GroupLayout.PREFERRED_SIZE))
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                        .addComponent(doneButton))
                     .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, 280, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addContainerGap(25, Short.MAX_VALUE))
+                .addContainerGap(19, Short.MAX_VALUE))
         );
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
@@ -333,6 +365,47 @@ public class tranSactions extends javax.swing.JFrame {
         
     }//GEN-LAST:event_jButton3ActionPerformed
 
+    private void doneButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_doneButtonActionPerformed
+     String carId = cid.getText();
+    String carName = cn.getText();
+    String carModel = cm.getText();
+    String feeAmount = fs.getText();
+
+    // Perform Database Updates
+    dbConnector dbConnectorInstance = new dbConnector(); // Create instance
+    try (Connection connect = dbConnectorInstance.getConnection()) { // Get connection
+
+        // Example: Update car status
+        String updateCarStatusSQL = "UPDATE tbl_cars SET c_status = 'Unavailable' WHERE c_id = ?";
+        try (PreparedStatement updateCarStatusStmt = connect.prepareStatement(updateCarStatusSQL)) {
+            updateCarStatusStmt.setString(1, carId);
+            updateCarStatusStmt.executeUpdate();
+        }
+
+        // Example: Insert transaction record
+        String insertTransactionSQL = "INSERT INTO transactions (c_id, c_name, c_model, fee_amount, transaction_date) VALUES (?, ?, ?, ?, NOW())";
+        try (PreparedStatement insertTransactionStmt = connect.prepareStatement(insertTransactionSQL)) {
+            insertTransactionStmt.setString(1, carId);
+            insertTransactionStmt.setString(2, carName);
+            insertTransactionStmt.setString(3, carModel);
+            insertTransactionStmt.setString(4, feeAmount);
+            insertTransactionStmt.executeUpdate();
+        }
+
+        // Clear the text area
+        area.setText("");
+       
+         
+        // Display confirmation message
+        JOptionPane.showMessageDialog(this, "Transaction completed successfully!");
+
+         
+    } catch (SQLException ex) {
+        JOptionPane.showMessageDialog(this, "Error completing transaction: " + ex.getMessage());
+        ex.printStackTrace();
+    }        // TODO add your handling code here:
+    }//GEN-LAST:event_doneButtonActionPerformed
+
     /**
      * @param args the command line arguments
      */
@@ -376,6 +449,7 @@ public class tranSactions extends javax.swing.JFrame {
     public javax.swing.JTextField cid;
     public javax.swing.JTextField cm;
     public javax.swing.JTextField cn;
+    private javax.swing.JButton doneButton;
     public javax.swing.JTextField fs;
     public javax.swing.JButton jButton1;
     public javax.swing.JButton jButton2;

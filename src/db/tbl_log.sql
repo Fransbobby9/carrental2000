@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Apr 05, 2025 at 03:29 PM
+-- Generation Time: Apr 09, 2025 at 03:55 PM
 -- Server version: 10.4.32-MariaDB
 -- PHP Version: 8.2.12
 
@@ -20,39 +20,6 @@ SET time_zone = "+00:00";
 --
 -- Database: `car_rental`
 --
-
--- --------------------------------------------------------
-
---
--- Table structure for table `tbl_cars`
---
-
-CREATE TABLE `tbl_cars` (
-  `c_id` int(11) NOT NULL,
-  `c_name` varchar(55) NOT NULL,
-  `c_model` varchar(55) NOT NULL,
-  `c_price` decimal(10,2) NOT NULL,
-  `c_status` varchar(55) NOT NULL,
-  `c_quantity` int(11) NOT NULL,
-  `c_image` varchar(255) NOT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
-
---
--- Dumping data for table `tbl_cars`
---
-
-INSERT INTO `tbl_cars` (`c_id`, `c_name`, `c_model`, `c_price`, `c_status`, `c_quantity`, `c_image`) VALUES
-(1, 'Car 1', 'Model A', 25000.00, 'Available', 10, ''),
-(2, 'Car 2', 'Model B', 30000.00, 'Available', 5, ''),
-(3, 'Car 3', 'Model C', 45000.00, 'Available', 10, ''),
-(4, 'Car 4', 'Model A', 30000.00, 'Available', 4, ''),
-(5, 'Car 5', 'Model B', 60000.00, 'Available', 10, ''),
-(6, 'Car 6', 'Model D', 80000.00, 'Available', 10, ''),
-(7, 'Car 7', 'Model B', 30000.00, 'Available', 5, ''),
-(8, 'Car 8', 'Model C', 45000.00, 'Available', 5, ''),
-(9, 'Car 9', 'Model C', 45000.00, 'Available', 10, ''),
-(10, 'Car 10', 'Model B', 30000.00, 'Available', 5, ''),
-(11, 'Car 11', 'Model C', 40000.00, 'Available', 10, '');
 
 -- --------------------------------------------------------
 
@@ -126,53 +93,30 @@ INSERT INTO `tbl_log` (`log_id`, `u_id`, `u_username`, `login_time`, `u_type`, `
 (58, 30, 'park123', '2025-04-05 13:12:44', 'Success - Admin Login', 'Inactive', '2025-04-05 13:13:24', NULL),
 (59, 30, 'park123', '2025-04-05 13:16:51', 'Success - Admin Login', 'Inactive', '2025-04-05 13:26:31', NULL),
 (60, 30, 'park123', '2025-04-05 13:17:27', 'Admin', 'Inactive', '2025-04-05 13:26:31', 'park123 added a new car: Car 10'),
-(61, 30, 'park123', '2025-04-05 13:25:31', 'Success - Admin Login', 'Inactive', '2025-04-05 13:26:31', NULL);
-
--- --------------------------------------------------------
-
---
--- Table structure for table `tbl_users`
---
-
-CREATE TABLE `tbl_users` (
-  `u_id` int(11) NOT NULL,
-  `u_fname` varchar(50) NOT NULL,
-  `u_lname` varchar(50) NOT NULL,
-  `u_email` varchar(50) NOT NULL,
-  `u_username` varchar(255) NOT NULL,
-  `u_password` varchar(50) NOT NULL,
-  `u_type` varchar(50) NOT NULL,
-  `u_status` varchar(50) NOT NULL,
-  `security_question` varchar(255) NOT NULL,
-  `security_answer` varchar(255) NOT NULL,
-  `u_image` varchar(500) NOT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
-
---
--- Dumping data for table `tbl_users`
---
-
-INSERT INTO `tbl_users` (`u_id`, `u_fname`, `u_lname`, `u_email`, `u_username`, `u_password`, `u_type`, `u_status`, `security_question`, `security_answer`, `u_image`) VALUES
-(12, 'jayem', 'rosalita', 'jayemrosalita@gmail.com', 'jayem123', 'ky88G1YlfOhTmsJp16q0JVDaz4gY0HXwvfGZBWKq4+8=', 'User', 'Active', '', '', ''),
-(14, 'kayeshea', 'basilan', 'kaye123@gmail.com', 'kaye1233', 'NBYWrmoA/JoDM/ch9Tgq8p41ekFyon8BzFcia+U+AQc=', 'Admin', 'Active', '', '', ''),
-(21, 'ross', 'sabio', 'rosssabio@gmail.com', 'ross1234', 'NBYWrmoA/JoDM/ch9Tgq8p41ekFyon8BzFcia+U+AQc=', 'Admin', 'Active', '', '', ''),
-(22, 'daniel', 'failadona', 'danielfailadona@gmail.com', 'daniel1234', 'NBYWrmoA/JoDM/ch9Tgq8p41ekFyon8BzFcia+U+AQc=', 'Admin', 'Active', '', '', ''),
-(24, 'benjohns', 'parans', 'benjohn@gmail.com', 'paran1234', 'ky88G1YlfOhTmsJp16q0JVDaz4gY0HXwvfGZBWKq4+8=', 'Admin', 'Active', '', '', ''),
-(25, 'sarno', 'mamen', 'sarnomamen@gmail.com', 'mamen123', 'ky88G1YlfOhTmsJp16q0JVDaz4gY0HXwvfGZBWKq4+8=', 'User', 'Active', '', '', ''),
-(28, 'han', 'seo', 'hanseo@gmail.com', 'hanseo123', 'ky88G1YlfOhTmsJp16q0JVDaz4gY0HXwvfGZBWKq4+8=', 'User', 'Active', '', '', ''),
-(29, 'beboy', 'padriga', 'beboypadriga@gmail.com', 'beboy123', '2KkosgQ9t340C1I1R78Wy0qkg/BkX+CikO0fIKq3Ylc=', 'User', 'Active', 'What\'s the name of your first pet?', 'browny', 'C:\\Users\\milan\\OneDrive\\Desktop\\Odin\\src\\images\\462574929_1530386207674650_925214417452153602_n.jpg'),
-(30, 'park', 'hanseo', 'parkhanseo@gmailcom', 'park123', 'ky88G1YlfOhTmsJp16q0JVDaz4gY0HXwvfGZBWKq4+8=', 'Admin', 'Active', 'What\'s the name of your first pet?', 'clarence', 'Null'),
-(31, 'daneil', 'failadona', 'danielfailadno@gmail.com', 'daniel123', 'DR6kwlbNUKKnzL/SKz2ZWfb9ML2EC5/zx8Ze5OId8G0=', 'User', 'Active', 'What\'s your favorite food?', 'hotdog', 'C:\\Users\\milan\\OneDrive\\Desktop\\carrental2000\\src\\images\\cc.jpg');
+(61, 30, 'park123', '2025-04-05 13:25:31', 'Success - Admin Login', 'Inactive', '2025-04-05 13:26:31', NULL),
+(62, 30, 'park123', '2025-04-09 12:37:36', 'Success - Admin Login', 'Inactive', '2025-04-09 13:13:27', NULL),
+(63, 30, 'park123', '2025-04-09 12:39:26', 'Success - Admin Login', 'Inactive', '2025-04-09 13:13:27', NULL),
+(64, 30, 'park123', '2025-04-09 12:42:59', 'Success - Admin Login', 'Inactive', '2025-04-09 13:13:27', NULL),
+(65, 30, 'park123', '2025-04-09 12:44:02', 'Success - Admin Login', 'Inactive', '2025-04-09 13:13:27', NULL),
+(66, 30, 'park123', '2025-04-09 13:00:14', 'Success - Admin Login', 'Inactive', '2025-04-09 13:13:27', NULL),
+(67, 30, 'park123', '2025-04-09 13:02:06', 'Success - Admin Login', 'Inactive', '2025-04-09 13:13:27', NULL),
+(68, 30, 'park123', '2025-04-09 13:11:05', 'Success - Admin Login', 'Inactive', '2025-04-09 13:13:27', NULL),
+(69, 30, 'park123', '2025-04-09 13:12:25', 'Success - Admin Login', 'Inactive', '2025-04-09 13:13:27', NULL),
+(70, 30, 'park123', '2025-04-09 13:23:42', 'Success - Admin Login', 'Inactive', '2025-04-09 13:51:48', NULL),
+(71, 30, 'park123', '2025-04-09 13:24:33', 'Success - Admin Login', 'Inactive', '2025-04-09 13:51:48', NULL),
+(72, 30, 'park123', '2025-04-09 13:31:31', 'Success - Admin Login', 'Inactive', '2025-04-09 13:51:48', NULL),
+(73, 30, 'park123', '2025-04-09 13:40:43', 'Success - Admin Login', 'Inactive', '2025-04-09 13:51:48', NULL),
+(74, 30, 'park123', '2025-04-09 13:41:17', 'Admin', 'Inactive', '2025-04-09 13:51:48', 'Admin Added Account: jay123'),
+(75, 30, 'park123', '2025-04-09 13:50:25', 'Success - Admin Login', 'Inactive', '2025-04-09 13:51:48', NULL),
+(76, 30, 'park123', '2025-04-09 13:51:20', 'Admin', 'Inactive', '2025-04-09 13:51:48', 'Admin Updated user account: jay123'),
+(77, 30, 'park123', '2025-04-09 13:54:03', 'Success - Admin Login', 'Active', NULL, NULL),
+(78, 30, 'park123', '2025-04-09 13:54:09', 'Admin', 'Active', NULL, 'Deleted user account with ID: 34'),
+(79, 30, 'park123', '2025-04-09 13:54:17', 'Admin', 'Active', NULL, 'Deleted user account with ID: 35'),
+(80, 30, 'park123', '2025-04-09 13:54:20', 'Admin', 'Active', NULL, 'Deleted user account with ID: 33');
 
 --
 -- Indexes for dumped tables
 --
-
---
--- Indexes for table `tbl_cars`
---
-ALTER TABLE `tbl_cars`
-  ADD PRIMARY KEY (`c_id`);
 
 --
 -- Indexes for table `tbl_log`
@@ -182,32 +126,14 @@ ALTER TABLE `tbl_log`
   ADD KEY `fk_log_user_id` (`u_id`);
 
 --
--- Indexes for table `tbl_users`
---
-ALTER TABLE `tbl_users`
-  ADD PRIMARY KEY (`u_id`);
-
---
 -- AUTO_INCREMENT for dumped tables
 --
-
---
--- AUTO_INCREMENT for table `tbl_cars`
---
-ALTER TABLE `tbl_cars`
-  MODIFY `c_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=12;
 
 --
 -- AUTO_INCREMENT for table `tbl_log`
 --
 ALTER TABLE `tbl_log`
-  MODIFY `log_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=62;
-
---
--- AUTO_INCREMENT for table `tbl_users`
---
-ALTER TABLE `tbl_users`
-  MODIFY `u_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=32;
+  MODIFY `log_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=81;
 
 --
 -- Constraints for dumped tables

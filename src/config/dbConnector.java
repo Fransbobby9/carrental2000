@@ -13,7 +13,7 @@ public class dbConnector {
     private static final String USER = "root";
     private static final String PASSWORD = "";
 
-    private static Connection connect = null;
+    public Connection connect;
 
     // Constructor to establish the database connection
     public dbConnector() {
@@ -26,16 +26,34 @@ public class dbConnector {
     }
 
     // Provide a public method to get the connection
-    public static Connection getConnection() {
+    public Connection getConnection() {
         return connect;
     }
 
-
     // Function to retrieve data
     public ResultSet getData(String sql) throws SQLException {
-        Statement stmt = connect.createStatement();
-        return stmt.executeQuery(sql);
+    Connection connection = null;
+    Statement statement = null;
+    ResultSet resultSet = null;
+
+    try {
+        connection = getConnection();
+        statement = connection.createStatement();
+        resultSet = statement.executeQuery(sql);
+        return resultSet;
+    } catch (SQLException e) {
+        if (resultSet != null) {
+            resultSet.close();
+        }
+        if (statement != null) {
+            statement.close();
+        }
+        if (connection != null) {
+            connection.close();
+        }
+        throw e; // rethrow the exception
     }
+}
 
     // Function to insert data
     public boolean insertData(String sql) {
@@ -66,5 +84,3 @@ public class dbConnector {
         }
     }
 }
-
-       

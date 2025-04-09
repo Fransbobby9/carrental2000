@@ -35,49 +35,49 @@ public class loginForm extends javax.swing.JFrame {
     static String status;
     static String type;
     
-  public static boolean loginAcc(String username, String password) {
-        dbConnector connector = new dbConnector();
-        String query = "SELECT * FROM tbl_users WHERE u_username = ?";
+ public static boolean loginAcc(String username, String password) {
+    dbConnector conn = new dbConnector(); // Create the dbConnector instance
 
-        try (Connection connection = dbConnector.getConnection();
-             PreparedStatement stmt = connection.prepareStatement(query)) {
+    String query = "SELECT * FROM tbl_users WHERE u_username = ?";
 
-            stmt.setString(1, username);
-            ResultSet resultSet = stmt.executeQuery();
+    try (Connection connection = conn.getConnection(); // Use conn to get the connection
+         PreparedStatement stmt = connection.prepareStatement(query)) {
 
-            if (resultSet.next()) {
-                String hashedPass = resultSet.getString("u_password");
-                String rehashedPass = passwordHasher.hashPassword(password);
+        stmt.setString(1, username);
+        ResultSet resultSet = stmt.executeQuery();
 
-                if (hashedPass.equals(rehashedPass)) {
-                    status = resultSet.getString("u_status");
-                    type = resultSet.getString("u_type");
+        if (resultSet.next()) {
+            String hashedPass = resultSet.getString("u_password");
+            String rehashedPass = passwordHasher.hashPassword(password);
 
-                    // Set session details
-                    Session sess = Session.getInstance();
-                    sess.setUid(resultSet.getInt("u_id"));
-                    sess.setFname(resultSet.getString("u_fname"));
-                    sess.setLname(resultSet.getString("u_lname"));
-                    sess.setEmail(resultSet.getString("u_email"));
-                    sess.setUsername(resultSet.getString("u_username"));
-                    sess.setType(resultSet.getString("u_type"));
-                    sess.setStatus(resultSet.getString("u_status"));
+            if (hashedPass.equals(rehashedPass)) {
+                status = resultSet.getString("u_status");
+                type = resultSet.getString("u_type");
 
-                    return true;
-                }
+                // Set session details
+                Session sess = Session.getInstance();
+                sess.setUid(resultSet.getInt("u_id"));
+                sess.setFname(resultSet.getString("u_fname"));
+                sess.setLname(resultSet.getString("u_lname"));
+                sess.setEmail(resultSet.getString("u_email"));
+                sess.setUsername(resultSet.getString("u_username"));
+                sess.setType(resultSet.getString("u_type"));
+                sess.setStatus(resultSet.getString("u_status"));
+
+                return true;
             }
-        } catch (SQLException | NoSuchAlgorithmException ex) {
-            // Log the error for debugging
-            
         }
-        return false;
+    } catch (SQLException | NoSuchAlgorithmException ex) {
+        // Log the error for debugging
     }
+    return false;
+}
 
 
     
-    public void logEvent(int userId, String username, String userType) {
-    dbConnector db = new dbConnector();
-    Connection con = dbConnector.getConnection();
+   public void logEvent(int userId, String username, String userType) {
+    dbConnector dbc = new dbConnector();
+    Connection con = dbc.getConnection();
     PreparedStatement pstmt = null;
 
     try {
@@ -92,7 +92,8 @@ public class loginForm extends javax.swing.JFrame {
         pstmt.executeUpdate();
         System.out.println("Login log recorded successfully.");
     } catch (SQLException e) {
-        JOptionPane.showMessageDialog(null, "Error recording log: " + e.getMessage());
+//        JOptionPane.showMessageDialog(null, "Error recording log: " + e.getMessage());
+        System.out.println("Error recording log: " + e.getMessage());
     } finally {
         try {
             if (pstmt != null) pstmt.close();
@@ -102,22 +103,45 @@ public class loginForm extends javax.swing.JFrame {
         }
     }
 }
+     
+
     
-    public String getUserId(String username) {
+   public String getUserId(String username) {
+       
         dbConnector dbc = new dbConnector();
-        String sql = "SELECT u_id FROM tbl_users WHERE u_username = ?";
+        PreparedStatement pstmt = null;
+        ResultSet rs = null;
         String userId = null;
 
-        try (Connection connection = dbConnector.getConnection();
-             PreparedStatement pstmt = connection.prepareStatement(sql)) {
-
+        try {
+         
+            String sql = "SELECT u_id FROM tbl_users WHERE u_username = ?";
+            pstmt = dbc.connect.prepareStatement(sql);
             pstmt.setString(1, username);
-            try (ResultSet rs = pstmt.executeQuery()) {
-                if (rs.next()) {
-                    userId = rs.getString("u_id");
-                }
+            rs = pstmt.executeQuery();
+
+            if (rs.next()) {
+                userId = rs.getString("u_id");
             }
         } catch (SQLException e) {
+            e.printStackTrace();
+        } finally {
+            if (rs != null) {
+                try {
+                    rs.close();
+                } catch (SQLException e) {
+                    e.printStackTrace();
+                }
+            }
+            if (pstmt != null) {
+                try {
+                    pstmt.close();
+                } catch (SQLException e) {
+                    e.printStackTrace();
+                }
+            }
+           
+       
         }
         return userId;
     }
@@ -247,7 +271,7 @@ public class loginForm extends javax.swing.JFrame {
     }// </editor-fold>//GEN-END:initComponents
 
     private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton1ActionPerformed
-        String username = user.getText();
+    String username = user.getText();
     String password = pass.getText();
 
         if (loginAcc(username, password)) {

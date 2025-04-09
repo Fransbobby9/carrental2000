@@ -20,6 +20,8 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.sql.Timestamp;
+import java.util.Date;
 import javax.swing.JOptionPane;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableModel;
@@ -45,46 +47,38 @@ public class adminDashboard extends javax.swing.JFrame {
     Color hovercolor = new Color(153,204,255);
 
  private void loadLogs() {
-    Session sess = Session.getInstance();
     dbConnector connector = new dbConnector();
-
-    try (Connection con = dbConnector.getConnection()) {
-        System.out.println("1");
+    try (Connection con = connector.getConnection()) {
 
         // Update 'Pending' log_status to 'Active' for recent logins
         String updateQuery = "UPDATE tbl_log SET log_status = 'Active' WHERE log_status = 'Pending'";
         try (PreparedStatement updateStmt = con.prepareStatement(updateQuery)) {
-            System.out.println("2");
             updateStmt.executeUpdate();
         }
 
-        // Fetch updated logs including logout time and description
+        // Fetch updated logs including logout time and log_description
         String selectQuery = "SELECT l.log_id, l.u_username, l.login_time, l.logout_time, l.u_type, " +
                              "CASE WHEN u.u_username IS NULL THEN 'Invalid User' ELSE l.log_status END AS log_status, " +
-                             "l.log_description " +
+                             "l.log_description " + // Include log_description
                              "FROM tbl_log l LEFT JOIN tbl_users u ON l.u_username = u.u_username " +
                              "ORDER BY l.login_time DESC";
 
         try (Statement stmt = con.createStatement();
              ResultSet rs = stmt.executeQuery(selectQuery)) {
-            System.out.println("3");
 
-            // Now with 7 columns including Description
             DefaultTableModel model = new DefaultTableModel(
-                new String[]{"Log ID", "Username", "Login Time", "Logout Time", "User Type", "Status", "Description"}, 0
+                new String[]{"Log ID", "Username", "Login Time", "Logout Time", "User Type", "Status", "Description"}, 0 // Add "Description" column
             );
 
             while (rs.next()) {
-                System.out.println("4");
-
                 model.addRow(new Object[]{
-                        rs.getInt("log_id"),
-                        rs.getString("u_username"),
-                        rs.getTimestamp("login_time"),
-                        rs.getTimestamp("logout_time"),
-                        rs.getString("u_type"),
-                        rs.getString("log_status"),
-                        rs.getString("log_description") // ✅ Added this line
+                    rs.getInt("log_id"),
+                    rs.getString("u_username"),
+                    rs.getTimestamp("login_time"),
+                    rs.getTimestamp("logout_time"),
+                    rs.getString("u_type"),
+                    rs.getString("log_status"),
+                    rs.getString("log_description") // Add log_description value
                 });
             }
 
@@ -92,38 +86,15 @@ public class adminDashboard extends javax.swing.JFrame {
         }
 
     } catch (SQLException ex) {
-        System.out.println("5");
         JOptionPane.showMessageDialog(null, "Error loading logs: " + ex.getMessage());
     }
 }
 
-  public void logCarAddition(String carName) {
-    try (Connection con = dbConnector.getConnection()) {
-        Session sess = Session.getInstance();
 
-        String insertLogQuery = "INSERT INTO tbl_log (u_id, u_username, login_time, u_type, log_status, log_description) " +
-                                "VALUES (?, ?, CURRENT_TIMESTAMP, ?, ?, ?)";
-
-        try (PreparedStatement pst = con.prepareStatement(insertLogQuery)) {
-            pst.setInt(1, sess.getUid()); // u_id
-            pst.setString(2, sess.getUsername()); // u_username
-            pst.setString(3, sess.getType()); // u_type
-            pst.setString(4, "Active"); // log_status
-           pst.setString(5, sess.getUsername() + " added a new car: " + carName);
-
-
-            pst.executeUpdate();
-        }
-    } catch (SQLException e) {
-        System.out.println("Failed to log car addition: " + e.getMessage());
-    }
-}
-
-
-  
-  private void logoutUser(String username) {
+private void logoutUser(String username) {
     dbConnector connector = new dbConnector();
-    try (Connection con = dbConnector.getConnection()) {
+    try (Connection con = connector.getConnection()) {
+        
         
         // Update log_status to "Inactive" and set logout_time
         String updateQuery = "UPDATE tbl_log SET log_status = 'Inactive', logout_time = NOW() " +
@@ -145,9 +116,7 @@ public class adminDashboard extends javax.swing.JFrame {
     }
 }
 
-
-
-
+ 
 
     
     /**
@@ -324,16 +293,16 @@ public class adminDashboard extends javax.swing.JFrame {
         jPanel3Layout.setHorizontalGroup(
             jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel3Layout.createSequentialGroup()
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addContainerGap(31, Short.MAX_VALUE)
                 .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 699, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(31, 31, 31))
+                .addContainerGap())
         );
         jPanel3Layout.setVerticalGroup(
             jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel3Layout.createSequentialGroup()
-                .addContainerGap(184, Short.MAX_VALUE)
+                .addContainerGap(166, Short.MAX_VALUE)
                 .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 380, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(37, 37, 37))
+                .addGap(55, 55, 55))
         );
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
@@ -380,18 +349,20 @@ public class adminDashboard extends javax.swing.JFrame {
     }//GEN-LAST:event_r_nameMouseClicked
 
     private void formWindowActivated(java.awt.event.WindowEvent evt) {//GEN-FIRST:event_formWindowActivated
-       Session sess = Session.getInstance();
+     Session sess = Session.getInstance();
     if (sess.getUid() == 0) {
-        JOptionPane.showMessageDialog(null, "No account, Login First!"); 
+        JOptionPane.showMessageDialog(null, "No account, Login First!");
         loginForm lf = new loginForm();
         lf.setVisible(true);
         this.dispose();
+    } else {
+        // Log the login event
+       
     }
-    
+
     acc_fname.setText("" + sess.getFname());
     acc_lname.setText("" + sess.getLname());
 
-  
     loadLogs();
     }//GEN-LAST:event_formWindowActivated
 

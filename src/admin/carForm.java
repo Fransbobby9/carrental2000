@@ -52,127 +52,126 @@ public class carForm extends javax.swing.JFrame {
         
  
         
-    public void displayData() {
-        try {
-            dbConnector dbc = new dbConnector();
+   public void displayData() {
+    try {
+        dbConnector dbc = new dbConnector();
+        // Update the table model with the new result set
+        try (ResultSet rs = dbc.getData("SELECT c_id, c_name, c_model, c_price, c_quantity, c_status FROM tbl_cars")) {
             // Update the table model with the new result set
-            try ( // Select only from tbl_cars
-                    ResultSet rs = dbc.getData("SELECT c_id, c_name, c_model, c_price, c_quantity, c_status FROM tbl_cars")) {
-                // Update the table model with the new result set
-                carsTable.setModel(DbUtils.resultSetToTableModel(rs));
-            }
-        } catch (SQLException ex) {
-            System.out.println("Errors: " + ex.getMessage());
+            carsTable.setModel(DbUtils.resultSetToTableModel(rs));
         }
+    } catch (SQLException ex) {
+        System.out.println("Errors: " + ex.getMessage());
     }
+}
     
-   public static void insertCars() {
-        Connection connector = null;
-        PreparedStatement preparedStatement = null;
+  public static void insertCars() {
+    Connection connector = null;
+    PreparedStatement preparedStatement = null;
 
+    try {
+        // Get a connection to the database
+        dbConnector db = new dbConnector(); // Create an instance of dbConnector
+        connector = db.getConnection(); // Corrected: use db instance
+
+        // SQL query to insert the data
+        String sql = "INSERT INTO tbl_cars (c_name, c_model, c_price, c_quantity, c_status) "
+                     + "VALUES (?, ?, ?, ?, ?)";
+
+        // Prepare the statement
+        preparedStatement = connector.prepareStatement(sql);
+
+        // Set the values for the placeholders
+        preparedStatement.setString(1, "Car 1");        // Set c_name
+        preparedStatement.setString(2, "Model A");      // Set c_model
+        preparedStatement.setDouble(3, 25000.00);      // Set c_price
+        preparedStatement.setInt(4, 10);              // Set c_quantity
+        preparedStatement.setString(5, "Available");    // Set c_status
+
+        // Execute the insert
+        preparedStatement.executeUpdate();
+
+        // Insert the second car
+        preparedStatement.setString(1, "Car 2");
+        preparedStatement.setString(2, "Model B");
+        preparedStatement.setDouble(3, 30000.00);
+        preparedStatement.setInt(4, 5);
+        preparedStatement.setString(5, "Available");
+
+        // Execute the second insert
+        preparedStatement.executeUpdate();
+
+        System.out.println("Cars inserted successfully!");
+    } catch (SQLException e) {
+        e.printStackTrace();
+    } finally {
+        // Close resources
         try {
-            // Get a connection to the database
-            connector = dbConnector.getConnection();  // Use dbConnector class to get connection
-
-            // SQL query to insert the data
-            String sql = "INSERT INTO tbl_cars (c_name, c_model, c_price, c_quantity, c_status) "
-                    + "VALUES (?, ?, ?, ?, ?)";
-
-            // Prepare the statement
-            preparedStatement = connector.prepareStatement(sql);
-
-            // Set the values for the placeholders
-            preparedStatement.setString(1, "Car 1");           // Set c_name
-            preparedStatement.setString(2, "Model A");         // Set c_model
-            preparedStatement.setDouble(3, 25000.00);          // Set c_price
-            preparedStatement.setInt(4, 10);                   // Set c_quantity
-            preparedStatement.setString(5, "Available");       // Set c_status
-
-            // Execute the insert
-            preparedStatement.executeUpdate();
-
-            // Insert the second car
-            preparedStatement.setString(1, "Car 2");
-            preparedStatement.setString(2, "Model B");
-            preparedStatement.setDouble(3, 30000.00);
-            preparedStatement.setInt(4, 5);
-            preparedStatement.setString(5, "Available");
-
-            // Execute the second insert
-            preparedStatement.executeUpdate();
-
-            System.out.println("Cars inserted successfully!");
+            if (preparedStatement != null) preparedStatement.close();
+            if (connector != null) connector.close();
         } catch (SQLException e) {
             e.printStackTrace();
-        } finally {
-            // Close resources
-            try {
-                if (preparedStatement != null) preparedStatement.close();
-                if (connector != null) connector.close();
-            } catch (SQLException e) {
-                e.printStackTrace();
-            }
         }
-   }
+    }
+}
    
-    public void logCarAddition(String carName) {
-    try (Connection con = dbConnector.getConnection()) {
+   public void logCarAddition(String carName) {
+    dbConnector db = new dbConnector(); // Create an instance of dbConnector
+    try (Connection con = db.getConnection(); // Corrected: use db instance
+         PreparedStatement pst = con.prepareStatement("INSERT INTO tbl_log (u_id, u_username, login_time, u_type, log_status, log_description) VALUES (?, ?, CURRENT_TIMESTAMP, ?, ?, ?)")) {
+
         Session sess = Session.getInstance();
 
-        String insertLogQuery = "INSERT INTO tbl_log (u_id, u_username, login_time, u_type, log_status, log_description) " +
-                                "VALUES (?, ?, CURRENT_TIMESTAMP, ?, ?, ?)";
+        pst.setInt(1, sess.getUid()); // u_id
+        pst.setString(2, sess.getUsername()); // u_username
+        pst.setString(3, sess.getType()); // u_type
+        pst.setString(4, "Active"); // log_status
+        pst.setString(5, sess.getUsername() + " added a new car: " + carName);
 
-        try (PreparedStatement pst = con.prepareStatement(insertLogQuery)) {
-            pst.setInt(1, sess.getUid()); // u_id
-            pst.setString(2, sess.getUsername()); // u_username
-            pst.setString(3, sess.getType()); // u_type
-            pst.setString(4, "Active"); // log_status
-           pst.setString(5, sess.getUsername() + " added a new car: " + carName);
+        pst.executeUpdate();
 
-
-            pst.executeUpdate();
-        }
     } catch (SQLException e) {
         System.out.println("Failed to log car addition: " + e.getMessage());
     }
 }
-    public void logCarDeletion(String carName) {
-    try (Connection con = dbConnector.getConnection()) {
-        Session sess = Session.getInstance();
-        String insertLogQuery = "INSERT INTO tbl_log (u_id, u_username, login_time, u_type, log_status, log_description) " +
-                                "VALUES (?, ?, CURRENT_TIMESTAMP, ?, 'Active', ?)";
-        
-        try (PreparedStatement pst = con.prepareStatement(insertLogQuery)) {
-            pst.setInt(1, sess.getUid());
-            pst.setString(2, sess.getUsername());
-            pst.setString(3, sess.getType());
-            pst.setString(4, "Admin deleted a car: " + carName);
+  public void logCarDeletion(String carName) {
+    dbConnector db = new dbConnector(); // Create an instance of dbConnector
+    try (Connection con = db.getConnection(); // Corrected: use db instance
+         PreparedStatement pst = con.prepareStatement("INSERT INTO tbl_log (u_id, u_username, login_time, u_type, log_status, log_description) VALUES (?, ?, CURRENT_TIMESTAMP, ?, 'Active', ?)")) {
 
-            pst.executeUpdate();
-        }
+        Session sess = Session.getInstance();
+
+        pst.setInt(1, sess.getUid());
+        pst.setString(2, sess.getUsername());
+        pst.setString(3, sess.getType());
+        pst.setString(4, "Admin deleted a car: " + carName);
+
+        pst.executeUpdate();
+
     } catch (SQLException e) {
         System.out.println("Failed to log car deletion: " + e.getMessage());
     }
 }
 
     public void logCarUpdate(String carName) {
-    try (Connection con = dbConnector.getConnection()) {
+    dbConnector db = new dbConnector(); // Create an instance of dbConnector
+    try (Connection con = db.getConnection(); // Corrected: use db instance
+         PreparedStatement pst = con.prepareStatement("INSERT INTO tbl_log (u_id, u_username, login_time, u_type, log_status, log_description) VALUES (?, ?, CURRENT_TIMESTAMP, ?, 'Active', ?)")) {
+
         Session sess = Session.getInstance();
-        String insertLogQuery = "INSERT INTO tbl_log (u_id, u_username, login_time, u_type, log_status, log_description) " +
-                                "VALUES (?, ?, CURRENT_TIMESTAMP, ?, 'Active', ?)";
 
-        try (PreparedStatement pst = con.prepareStatement(insertLogQuery)) {
-            pst.setInt(1, sess.getUid());
-            pst.setString(2, sess.getUsername());
-            pst.setString(3, sess.getType());
-            pst.setString(4, "Admin updated car: " + carName); // ✅ Log details
+        pst.setInt(1, sess.getUid());
+        pst.setString(2, sess.getUsername());
+        pst.setString(3, sess.getType());
+        pst.setString(4, "Admin updated car: " + carName); // ✅ Log details
 
-            pst.executeUpdate();
-        }
+        pst.executeUpdate();
     } catch (SQLException e) {
         System.out.println("Failed to log car update: " + e.getMessage());
     }
 }
+    
+    
 
     /**
      * This method is called from within the constructor to initialize the form.
@@ -545,12 +544,12 @@ String defaultPath = "src/usersimages/";
     String existingImagePath = "";
 
     try {
-        ResultSet rs = dbc.getData("SELECT c_quantity, c_image FROM tbl_cars WHERE c_id = '" + cid.getText() + "'");
+    try (ResultSet rs = dbc.getData("SELECT c_quantity, c_image FROM tbl_cars WHERE c_id = '" + cid.getText() + "'")) {
         if (rs.next()) {
             currentQty = rs.getInt("c_quantity"); // FIXED column name
             existingImagePath = rs.getString("c_image");
         }
-        rs.close();
+    }
     } catch (SQLException ex) {
         System.err.println("Error: " + ex.getMessage());
     }
@@ -669,31 +668,40 @@ if (rowIndex < 0) {
     }//GEN-LAST:event_addsActionPerformed
 
     private void deleteActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_deleteActionPerformed
-  int selectedRow = carsTable.getSelectedRow();
-if (selectedRow == -1) {
-    JOptionPane.showMessageDialog(null, "Please select a row to delete!");
-    return;
-}
+   int selectedRow = carsTable.getSelectedRow();
+    if (selectedRow == -1) {
+        JOptionPane.showMessageDialog(null, "Please select a row to delete!");
+        return;
+    }
 
-int confirm = JOptionPane.showConfirmDialog(null, "Are you sure you want to delete this record?", "Confirmation", JOptionPane.YES_NO_OPTION);
-if (confirm == JOptionPane.YES_OPTION) {
-    String carIdToDelete = carsTable.getValueAt(selectedRow, 0).toString(); // Assuming 0 = car ID
-    String carName = carsTable.getValueAt(selectedRow, 1).toString();       // Assuming 1 = car name
+    int confirm = JOptionPane.showConfirmDialog(null, "Are you sure you want to delete this record?", "Confirmation", JOptionPane.YES_NO_OPTION);
+    if (confirm == JOptionPane.YES_OPTION) {
+        String carIdToDelete = carsTable.getValueAt(selectedRow, 0).toString();
+        String carName = carsTable.getValueAt(selectedRow, 1).toString();
 
-    dbConnector dbc = new dbConnector();
-    String deleteQuery = "DELETE FROM tbl_cars WHERE c_id = '" + carIdToDelete + "'";
-    dbc.updateData(deleteQuery);
+        dbConnector dbc = new dbConnector();
+        String deleteQuery = "DELETE FROM tbl_cars WHERE c_id = '" + carIdToDelete + "'"; 
 
-    // ✅ Log the deletion
-    logCarDeletion(carName);
+        // Declare deleteQuery outside the if block
+        System.out.println("Delete Query: " + deleteQuery); // Print the query
 
-    // Remove from table view
-    DefaultTableModel model = (DefaultTableModel) carsTable.getModel();
-    model.removeRow(selectedRow);
+        try {
+            dbc.updateData(deleteQuery);
+            System.out.println("Record deleted successfully from database.");
 
-    JOptionPane.showMessageDialog(null, "Record deleted successfully!");
-}
+            // Remove from table view
+            DefaultTableModel model = (DefaultTableModel) carsTable.getModel();
+            model.removeRow(selectedRow);
 
+            JOptionPane.showMessageDialog(null, "Record deleted successfully!");
+        } catch (Exception ex) {
+            System.err.println("Error deleting record: " + ex.getMessage());
+            ex.printStackTrace();
+        }
+
+        // Log the deletion
+        logCarDeletion(carName);
+    } 
     }//GEN-LAST:event_deleteActionPerformed
 
     private void acc_name1MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_acc_name1MouseClicked

@@ -211,8 +211,10 @@ private JComboBox<String> type;
     }
 }
        
-         private void deleteUser() {
-         int selectedRow = user_table.getSelectedRow();
+       private void deleteUser() {
+           
+            Session sess = Session.getInstance();  // Logged-in admin
+    int selectedRow = user_table.getSelectedRow();
     if (selectedRow == -1) {
         JOptionPane.showMessageDialog(this, "Please select a user to delete.");
         return;
@@ -220,7 +222,7 @@ private JComboBox<String> type;
 
     int userId = (int) user_table.getValueAt(selectedRow, 0);
     int confirm = JOptionPane.showConfirmDialog(this, "Are you sure you want to delete this user?", "Confirm Deletion", JOptionPane.YES_NO_OPTION);
-    
+
     if (confirm == JOptionPane.YES_OPTION) {
         String sql = "DELETE FROM tbl_users WHERE u_id=?";
 
@@ -232,7 +234,22 @@ private JComboBox<String> type;
 
             if (affectedRows > 0) {
                 JOptionPane.showMessageDialog(this, "User Deleted Successfully!");
-                loadUsersData();  // Ensure this method exists
+
+                // ✅ Logging the deletion action
+                String logQuery = "INSERT INTO tbl_log (u_id, u_username, u_type, log_status, log_description) VALUES (?, ?, ?, ?, ?)";
+                try (PreparedStatement logPst = con.prepareStatement(logQuery)) {
+                    logPst.setInt(1, sess.getUid()); // Admin ID from session
+                    logPst.setString(2, sess.getUsername()); // Admin username
+                    logPst.setString(3, sess.getType()); // Admin type, e.g., "Admin"
+                    logPst.setString(4, "Active"); // Status of the log
+                    logPst.setString(5, "Deleted user account with ID: " + userId); // Description
+                    logPst.executeUpdate();
+                } catch (SQLException logEx) {
+                    JOptionPane.showMessageDialog(this, "Log Error: " + logEx.getMessage(), "Log Error", JOptionPane.ERROR_MESSAGE);
+                }
+
+                loadUsersData();  // Ensure this method exists to reload the table or data
+
             } else {
                 JOptionPane.showMessageDialog(this, "No user found to delete.", "Deletion Failed", JOptionPane.WARNING_MESSAGE);
             }
@@ -241,7 +258,8 @@ private JComboBox<String> type;
             JOptionPane.showMessageDialog(this, "Error: " + ex.getMessage(), "Database Error", JOptionPane.ERROR_MESSAGE);
         }
     }
-    }
+}
+
          private String hashPassword(String password) {
     try {
         MessageDigest md = MessageDigest.getInstance("SHA-256");
