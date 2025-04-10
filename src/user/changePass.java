@@ -15,6 +15,8 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Timestamp;
+import java.util.Date;
 import javax.swing.JOptionPane;
 
 /**
@@ -29,7 +31,37 @@ public class changePass extends javax.swing.JFrame {
     public changePass() {
         initComponents();
     }
-    
+       public void logEvent(int userId, String username, String userType) {
+    dbConnector dbc = new dbConnector();
+    Connection con = dbc.getConnection();
+    PreparedStatement pstmt = null;
+    String ut = null;
+
+    try {
+        // Assuming there's no 'log_time' column, remove it from the query
+        String sql = "INSERT INTO tbl_log (u_id, u_username, login_time, u_type, log_status) VALUES (?, ?, ?, ?, ?)";
+        pstmt = con.prepareStatement(sql);
+
+        pstmt.setInt(1, userId);
+        pstmt.setString(2, username);
+        pstmt.setTimestamp(3, new Timestamp(new Date().getTime())); // Make sure 'login_time' column exists
+        pstmt.setString(4, userType);
+        ut = "Active";
+        pstmt.setString(5, ut);
+
+        pstmt.executeUpdate();
+        System.out.println("Login log recorded successfully.");
+    } catch (SQLException e) {
+        System.out.println("Error recording log: " + e.getMessage());
+    } finally {
+        try {
+            if (pstmt != null) pstmt.close();
+            if (con != null) con.close();
+        } catch (SQLException e) {
+            JOptionPane.showMessageDialog(null, "Error closing resources: " + e.getMessage());
+        }
+    }
+}
 
     /**
      * This method is called from within the constructor to initialize the form.
@@ -261,7 +293,10 @@ public class changePass extends javax.swing.JFrame {
    String Cpassw = new String(Cpassword.getPassword()).trim();
    String oldPassInput = oldpass.getText().trim();
  // Use this for JPasswordField
-
+ 
+        int userId = 0;
+        String uname2 = null;
+  
 
 if (passw.isEmpty() || Cpassw.isEmpty() || oldPassInput.isEmpty()) {
     JOptionPane.showMessageDialog(null, "Please fill all fields");
@@ -273,6 +308,7 @@ if (passw.isEmpty() || Cpassw.isEmpty() || oldPassInput.isEmpty()) {
     try {
         dbConnector dbc = new dbConnector();
         Session sess = Session.getInstance();
+        dbConnector connector = new dbConnector();
 
         String query = "SELECT u_password FROM tbl_users WHERE u_id = ?";
         try (Connection conn = dbc.getConnection();
@@ -307,6 +343,24 @@ if (passw.isEmpty() || Cpassw.isEmpty() || oldPassInput.isEmpty()) {
                     int updated = updatePst.executeUpdate();
                     if (updated > 0) {
                         JOptionPane.showMessageDialog(null, "Password updated successfully");
+                        
+                              try 
+                        {
+                            String query2 = "SELECT * FROM tbl_users WHERE u_id = '" + sess.getUid() + "'";
+                            PreparedStatement pstmt = connector.getConnection().prepareStatement(query2);
+
+                            ResultSet resultSet = pstmt.executeQuery();
+
+                            if (resultSet.next()) {
+                                userId = resultSet.getInt("u_id");   // Update the outer `userId` correctly
+                                uname2 = resultSet.getString("u_username");
+                            }
+                        } catch (SQLException ex) {
+                            System.out.println("SQL Exception: " + ex);
+                        }
+
+                        logEvent(userId, uname2, "User Changed Their Password");
+                        
                         new usersDashboard().setVisible(true);
                         this.dispose();
                     } else {

@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Apr 09, 2025 at 03:55 PM
+-- Generation Time: Apr 10, 2025 at 03:45 PM
 -- Server version: 10.4.32-MariaDB
 -- PHP Version: 8.2.12
 
@@ -112,7 +112,42 @@ INSERT INTO `tbl_log` (`log_id`, `u_id`, `u_username`, `login_time`, `u_type`, `
 (77, 30, 'park123', '2025-04-09 13:54:03', 'Success - Admin Login', 'Active', NULL, NULL),
 (78, 30, 'park123', '2025-04-09 13:54:09', 'Admin', 'Active', NULL, 'Deleted user account with ID: 34'),
 (79, 30, 'park123', '2025-04-09 13:54:17', 'Admin', 'Active', NULL, 'Deleted user account with ID: 35'),
-(80, 30, 'park123', '2025-04-09 13:54:20', 'Admin', 'Active', NULL, 'Deleted user account with ID: 33');
+(80, 30, 'park123', '2025-04-09 13:54:20', 'Admin', 'Active', NULL, 'Deleted user account with ID: 33'),
+(81, 1, 'frans123', '2025-04-10 13:26:51', 'Success - User Login', 'Inactive', '2025-04-10 13:28:19', NULL),
+(82, 1, 'frans123', '2025-04-10 13:27:58', 'Success - User Login', 'Inactive', '2025-04-10 13:28:19', NULL),
+(83, 1, 'frans123', '2025-04-10 13:28:16', 'User Changed Their Details', 'Inactive', '2025-04-10 13:28:19', NULL),
+(84, 1, 'frans123', '2025-04-10 13:30:48', 'Success - User Login', 'Inactive', '2025-04-10 13:31:21', NULL),
+(85, 1, 'frans123', '2025-04-10 13:39:46', 'Success - User Login', 'Inactive', '2025-04-10 13:40:23', NULL),
+(86, 1, 'frans123', '2025-04-10 13:39:58', 'User Changed Their Details', 'Inactive', '2025-04-10 13:40:23', NULL),
+(87, 1, 'frans123', '2025-04-10 13:43:31', 'Success - User Login', 'Inactive', '2025-04-10 13:44:04', NULL),
+(88, 1, 'frans123', '2025-04-10 13:43:43', 'User', 'Inactive', '2025-04-10 13:44:04', 'User Changed Their Details');
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `tbl_users`
+--
+
+CREATE TABLE `tbl_users` (
+  `u_id` int(11) NOT NULL,
+  `u_fname` varchar(255) NOT NULL,
+  `u_lname` varchar(255) NOT NULL,
+  `u_username` varchar(255) NOT NULL,
+  `u_email` varchar(255) NOT NULL,
+  `u_type` varchar(255) NOT NULL,
+  `u_status` varchar(255) NOT NULL,
+  `u_password` varchar(255) NOT NULL,
+  `u_image` varchar(255) NOT NULL,
+  `security_question` varchar(255) NOT NULL,
+  `security_answer` varchar(255) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Dumping data for table `tbl_users`
+--
+
+INSERT INTO `tbl_users` (`u_id`, `u_fname`, `u_lname`, `u_username`, `u_email`, `u_type`, `u_status`, `u_password`, `u_image`, `security_question`, `security_answer`) VALUES
+(1, 'frans', 'ababa', 'frans123', 'fransababa@gmail.com', 'User', 'Active', 'ky88G1YlfOhTmsJp16q0JVDaz4gY0HXwvfGZBWKq4+8=', 'src/images/cc.jpg', 'What\'s the name of your first pet?', 'kai');
 
 --
 -- Indexes for dumped tables
@@ -126,6 +161,12 @@ ALTER TABLE `tbl_log`
   ADD KEY `fk_log_user_id` (`u_id`);
 
 --
+-- Indexes for table `tbl_users`
+--
+ALTER TABLE `tbl_users`
+  ADD PRIMARY KEY (`u_id`);
+
+--
 -- AUTO_INCREMENT for dumped tables
 --
 
@@ -133,17 +174,13 @@ ALTER TABLE `tbl_log`
 -- AUTO_INCREMENT for table `tbl_log`
 --
 ALTER TABLE `tbl_log`
-  MODIFY `log_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=81;
+  MODIFY `log_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=89;
 
 --
--- Constraints for dumped tables
+-- AUTO_INCREMENT for table `tbl_users`
 --
-
---
--- Constraints for table `tbl_log`
---
-ALTER TABLE `tbl_log`
-  ADD CONSTRAINT `fk_log_user_id` FOREIGN KEY (`u_id`) REFERENCES `tbl_users` (`u_id`) ON DELETE CASCADE ON UPDATE CASCADE;
+ALTER TABLE `tbl_users`
+  MODIFY `u_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
 COMMIT;
 
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;

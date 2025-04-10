@@ -28,47 +28,52 @@ public class usersDashboard extends javax.swing.JFrame {
      */
     public usersDashboard() {
         initComponents();
+        
         loadUserProfile();
+     
     }
+    
 
     Color navcolor = new Color(255,255,255);
     Color hovercolor = new Color(153,204,255);
     
     
  
-    private void loadUserProfile() {
+   private void loadUserProfile() {
     dbConnector dbc = new dbConnector();
     Session sess = Session.getInstance();
-    
+
     String query = "SELECT u_image FROM tbl_users WHERE u_id = ?";
-    
-    try {
-        PreparedStatement pstmt = dbc.getConnection().prepareStatement(query);
+
+    try (Connection conn = dbc.getConnection();
+         PreparedStatement pstmt = conn.prepareStatement(query)) {
+
         pstmt.setInt(1, sess.getUid());
         ResultSet rs = pstmt.executeQuery();
-        
+
         if (rs.next()) {
             String imagePath = rs.getString("u_image");
 
             if (imagePath != null && !imagePath.isEmpty()) {
                 ImageIcon icon = new ImageIcon(imagePath);
-                u_image.setIcon(icon);  // u_image is the JLabel on UserDashboard
+                u_image.setIcon(icon);
             }
         }
     } catch (SQLException e) {
-        e.printStackTrace();
+        e.printStackTrace(); // Log the error
+        JOptionPane.showMessageDialog(this, "Error loading profile image: " + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
     }
-}
+}   
    
-    private void logoutUser(String username) {
-    dbConnector connector = new dbConnector(); // Create the dbConnector instance
-    try (Connection con = connector.getConnection()) { // Use connector to get the connection
+  private void logoutUser(String username) {
+    dbConnector connector = new dbConnector();
+    try (Connection con = connector.getConnection()) {
 
-        // Update log_status to "Inactive" and set logout_time
         String updateQuery = "UPDATE tbl_log SET log_status = 'Inactive', logout_time = NOW() " +
-                             "WHERE u_username = ? AND log_status = 'Active'";
+                             "WHERE LOWER(u_username) = LOWER(?) AND log_status = 'Active'";
 
         try (PreparedStatement stmt = con.prepareStatement(updateQuery)) {
+            System.out.println("Logging out user: " + username); // Debug
             stmt.setString(1, username);
             int updatedRows = stmt.executeUpdate();
 
@@ -83,6 +88,7 @@ public class usersDashboard extends javax.swing.JFrame {
         JOptionPane.showMessageDialog(null, "Error logging out: " + ex.getMessage());
     }
 }
+
     
     /**
      * This method is called from within the constructor to initialize the form.
@@ -262,7 +268,7 @@ public class usersDashboard extends javax.swing.JFrame {
     private void jLabel2MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jLabel2MouseClicked
           Session sess = Session.getInstance();
     if (sess.getUid() != 0) {
-        logoutUser(sess.getUsername());  // Log out the current user
+        logoutUser(sess.getUsername());  // Log out the current user // CLEAR
     }
 
     loginForm loginFrame = new loginForm();
@@ -281,6 +287,9 @@ public class usersDashboard extends javax.swing.JFrame {
            this.dispose();
         }
         acc_name.setText(""+sess.getFname());
+        
+        
+        
     }//GEN-LAST:event_formWindowActivated
 
     private void u_nameMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_u_nameMouseClicked
