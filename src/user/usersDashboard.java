@@ -22,6 +22,7 @@ import javax.swing.JOptionPane;
  * @author Bentastic
  */
 public class usersDashboard extends javax.swing.JFrame {
+ private String loggedInUserId;
 
     /**
      * Creates new form adminDashboard
@@ -307,9 +308,11 @@ public class usersDashboard extends javax.swing.JFrame {
     }//GEN-LAST:event_u_nameMouseExited
 
     private void cars1MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_cars1MouseClicked
-        customerForm as = new customerForm();
-        as.setVisible(true);
-        this.dispose();
+     customerForm as = new customerForm(loggedInUserId);
+as.setVisible(true);
+this.dispose(); 
+
+
     }//GEN-LAST:event_cars1MouseClicked
 
     private void cars1MouseEntered(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_cars1MouseEntered

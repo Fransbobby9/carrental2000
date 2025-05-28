@@ -23,7 +23,7 @@ public class tranSactions extends javax.swing.JFrame {
     /**
      * Creates new form usersReports
      */
-    public tranSactions() {
+    public tranSactions(String userId, String carId, String carName, String carModel, String feeAmount) {
         initComponents();
         
         doneButton = new javax.swing.JButton(); // Add the Done Transaction button
@@ -33,8 +33,12 @@ public class tranSactions extends javax.swing.JFrame {
                 doneButtonActionPerformed(evt);
             }
         });
-
-       
+    uid.setText(userId);      // Display in field
+  
+       cid.setText(carId);
+        cn.setText(carName);
+        cm.setText(carModel);
+        fs.setText(feeAmount);
     }
 
         Color navcolor = new Color(153,204,255);
@@ -44,7 +48,27 @@ public class tranSactions extends javax.swing.JFrame {
 
 
         
-        
+        public void setCarId(String id) {
+    cid.setText(id);
+}
+
+public void setCarName(String name) {
+    cn.setText(name);
+}
+
+public void setCarModel(String model) {
+    cm.setText(model);
+}
+
+public void setFee(String fee) {
+    fs.setText(fee);
+}
+
+public void setUserId(String userId) {
+    uid.setText(userId);
+   
+}
+
     
     
     /**
@@ -81,6 +105,16 @@ public class tranSactions extends javax.swing.JFrame {
         area = new javax.swing.JTextArea();
         doneButton = new javax.swing.JButton();
         jLabel10 = new javax.swing.JLabel();
+        jLabel8 = new javax.swing.JLabel();
+        license = new javax.swing.JTextField();
+        jLabel12 = new javax.swing.JLabel();
+        em = new javax.swing.JTextField();
+        fn = new javax.swing.JTextField();
+        jLabel13 = new javax.swing.JLabel();
+        uid = new javax.swing.JTextField();
+        jLabel14 = new javax.swing.JLabel();
+        jLabel15 = new javax.swing.JLabel();
+        ln = new javax.swing.JTextField();
 
         jTable1.setModel(new javax.swing.table.DefaultTableModel(
             new Object [][] {
@@ -189,12 +223,20 @@ public class tranSactions extends javax.swing.JFrame {
         );
 
         jPanel3.setBackground(new java.awt.Color(255, 255, 255));
+        jPanel3.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
 
-        jLabel4.setText("Enter Car's ID:");
+        jLabel4.setText("Enter Email:");
+        jPanel3.add(jLabel4, new org.netbeans.lib.awtextra.AbsoluteConstraints(80, 130, 120, 30));
 
         jLabel9.setText("Enter Car's Model:");
+        jPanel3.add(jLabel9, new org.netbeans.lib.awtextra.AbsoluteConstraints(70, 290, 133, 30));
 
         jLabel11.setText("Fee's Amount:");
+        jPanel3.add(jLabel11, new org.netbeans.lib.awtextra.AbsoluteConstraints(70, 330, 133, 30));
+        jPanel3.add(cid, new org.netbeans.lib.awtextra.AbsoluteConstraints(200, 210, 201, 30));
+        jPanel3.add(cn, new org.netbeans.lib.awtextra.AbsoluteConstraints(200, 250, 201, 30));
+        jPanel3.add(cm, new org.netbeans.lib.awtextra.AbsoluteConstraints(200, 290, 201, 30));
+        jPanel3.add(fs, new org.netbeans.lib.awtextra.AbsoluteConstraints(200, 330, 201, 30));
 
         jButton1.setBackground(new java.awt.Color(0, 102, 102));
         jButton1.setText("Generate Receipt");
@@ -204,6 +246,7 @@ public class tranSactions extends javax.swing.JFrame {
                 jButton1ActionPerformed(evt);
             }
         });
+        jPanel3.add(jButton1, new org.netbeans.lib.awtextra.AbsoluteConstraints(490, 310, 70, 31));
 
         jButton2.setBackground(new java.awt.Color(0, 102, 102));
         jButton2.setText("Reset");
@@ -213,6 +256,7 @@ public class tranSactions extends javax.swing.JFrame {
                 jButton2ActionPerformed(evt);
             }
         });
+        jPanel3.add(jButton2, new org.netbeans.lib.awtextra.AbsoluteConstraints(580, 310, 90, 31));
 
         jButton3.setBackground(new java.awt.Color(0, 102, 102));
         jButton3.setText("Print Receipt");
@@ -222,11 +266,14 @@ public class tranSactions extends javax.swing.JFrame {
                 jButton3ActionPerformed(evt);
             }
         });
+        jPanel3.add(jButton3, new org.netbeans.lib.awtextra.AbsoluteConstraints(680, 310, 70, 31));
 
         area.setColumns(20);
         area.setFont(new java.awt.Font("Monospaced", 1, 13)); // NOI18N
         area.setRows(5);
         jScrollPane2.setViewportView(area);
+
+        jPanel3.add(jScrollPane2, new org.netbeans.lib.awtextra.AbsoluteConstraints(500, 20, 236, 280));
 
         doneButton.setBackground(new java.awt.Color(0, 0, 0));
         doneButton.setText("Done");
@@ -235,74 +282,30 @@ public class tranSactions extends javax.swing.JFrame {
                 doneButtonActionPerformed(evt);
             }
         });
+        jPanel3.add(doneButton, new org.netbeans.lib.awtextra.AbsoluteConstraints(660, 420, 100, -1));
 
         jLabel10.setText("Enter Car's Name:");
+        jPanel3.add(jLabel10, new org.netbeans.lib.awtextra.AbsoluteConstraints(70, 250, 130, 30));
 
-        javax.swing.GroupLayout jPanel3Layout = new javax.swing.GroupLayout(jPanel3);
-        jPanel3.setLayout(jPanel3Layout);
-        jPanel3Layout.setHorizontalGroup(
-            jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(jPanel3Layout.createSequentialGroup()
-                .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addGroup(jPanel3Layout.createSequentialGroup()
-                        .addContainerGap()
-                        .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                                .addComponent(jLabel11, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                                .addComponent(jLabel9, javax.swing.GroupLayout.DEFAULT_SIZE, 133, Short.MAX_VALUE)
-                                .addComponent(jLabel4, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-                            .addComponent(jLabel10, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(cm, javax.swing.GroupLayout.PREFERRED_SIZE, 201, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addComponent(fs, javax.swing.GroupLayout.PREFERRED_SIZE, 201, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addComponent(cid, javax.swing.GroupLayout.PREFERRED_SIZE, 201, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addComponent(cn, javax.swing.GroupLayout.PREFERRED_SIZE, 201, javax.swing.GroupLayout.PREFERRED_SIZE)))
-                    .addGroup(jPanel3Layout.createSequentialGroup()
-                        .addGap(46, 46, 46)
-                        .addComponent(jButton1)
-                        .addGap(18, 18, 18)
-                        .addComponent(jButton2, javax.swing.GroupLayout.PREFERRED_SIZE, 90, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addGap(18, 18, 18)
-                        .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                            .addComponent(doneButton, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                            .addComponent(jButton3, javax.swing.GroupLayout.DEFAULT_SIZE, 100, Short.MAX_VALUE))))
-                .addGap(18, 18, 18)
-                .addComponent(jScrollPane2, javax.swing.GroupLayout.DEFAULT_SIZE, 236, Short.MAX_VALUE))
-        );
-        jPanel3Layout.setVerticalGroup(
-            jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(jPanel3Layout.createSequentialGroup()
-                .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addGroup(jPanel3Layout.createSequentialGroup()
-                        .addGap(22, 22, 22)
-                        .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, 280, javax.swing.GroupLayout.PREFERRED_SIZE))
-                    .addGroup(jPanel3Layout.createSequentialGroup()
-                        .addGap(63, 63, 63)
-                        .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                            .addComponent(jLabel4, javax.swing.GroupLayout.PREFERRED_SIZE, 30, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addComponent(cid, javax.swing.GroupLayout.PREFERRED_SIZE, 30, javax.swing.GroupLayout.PREFERRED_SIZE))
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                        .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                            .addComponent(cn, javax.swing.GroupLayout.PREFERRED_SIZE, 30, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addComponent(jLabel10, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(cm, javax.swing.GroupLayout.PREFERRED_SIZE, 30, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addComponent(jLabel9, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.PREFERRED_SIZE, 30, javax.swing.GroupLayout.PREFERRED_SIZE))
-                        .addGap(18, 18, 18)
-                        .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                            .addComponent(jLabel11, javax.swing.GroupLayout.PREFERRED_SIZE, 30, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addComponent(fs, javax.swing.GroupLayout.PREFERRED_SIZE, 30, javax.swing.GroupLayout.PREFERRED_SIZE))
-                        .addGap(18, 18, 18)
-                        .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                            .addComponent(jButton1, javax.swing.GroupLayout.PREFERRED_SIZE, 31, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addComponent(jButton2, javax.swing.GroupLayout.PREFERRED_SIZE, 31, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addComponent(jButton3, javax.swing.GroupLayout.PREFERRED_SIZE, 31, javax.swing.GroupLayout.PREFERRED_SIZE))
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                        .addComponent(doneButton)))
-                .addContainerGap(19, Short.MAX_VALUE))
-        );
+        jLabel8.setText("Enter Car's ID:");
+        jPanel3.add(jLabel8, new org.netbeans.lib.awtextra.AbsoluteConstraints(80, 210, 120, 30));
+        jPanel3.add(license, new org.netbeans.lib.awtextra.AbsoluteConstraints(200, 170, 200, 30));
+
+        jLabel12.setText("Enter License No.");
+        jPanel3.add(jLabel12, new org.netbeans.lib.awtextra.AbsoluteConstraints(80, 170, 120, 30));
+        jPanel3.add(em, new org.netbeans.lib.awtextra.AbsoluteConstraints(200, 130, 200, 30));
+        jPanel3.add(fn, new org.netbeans.lib.awtextra.AbsoluteConstraints(200, 50, 200, 30));
+
+        jLabel13.setText("Enter First Name:");
+        jPanel3.add(jLabel13, new org.netbeans.lib.awtextra.AbsoluteConstraints(100, 90, -1, 30));
+        jPanel3.add(uid, new org.netbeans.lib.awtextra.AbsoluteConstraints(210, 10, 100, 30));
+
+        jLabel14.setText("User ID:");
+        jPanel3.add(jLabel14, new org.netbeans.lib.awtextra.AbsoluteConstraints(90, 10, 120, 30));
+
+        jLabel15.setText("Enter First Name:");
+        jPanel3.add(jLabel15, new org.netbeans.lib.awtextra.AbsoluteConstraints(100, 50, -1, 30));
+        jPanel3.add(ln, new org.netbeans.lib.awtextra.AbsoluteConstraints(200, 90, 200, 30));
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
@@ -314,16 +317,16 @@ public class tranSactions extends javax.swing.JFrame {
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addComponent(jPanel2, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                     .addGroup(layout.createSequentialGroup()
-                        .addComponent(jPanel3, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addComponent(jPanel3, javax.swing.GroupLayout.PREFERRED_SIZE, 789, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addGap(0, 0, Short.MAX_VALUE))))
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addComponent(jPanel1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
-                .addComponent(jPanel2, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(jPanel3, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+            .addGroup(layout.createSequentialGroup()
+                .addComponent(jPanel2, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addComponent(jPanel3, javax.swing.GroupLayout.PREFERRED_SIZE, 503, javax.swing.GroupLayout.PREFERRED_SIZE))
         );
 
         pack();
@@ -368,44 +371,80 @@ public class tranSactions extends javax.swing.JFrame {
     }//GEN-LAST:event_jButton3ActionPerformed
 
     private void doneButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_doneButtonActionPerformed
-     String carId = cid.getText();
-    String carName = cn.getText();
-    String carModel = cm.getText();
-    String feeAmount = fs.getText();
+ String carId = cid.getText().trim();
+String carName = cn.getText().trim();
+String carModel = cm.getText().trim();
+String feeAmount = fs.getText().trim();
+String userId = uid.getText().trim();
+String licenseNo = license.getText().trim();
+String email = em.getText().trim();
+String fname = fn.getText().trim();
+String lname = ln.getText().trim();
 
-    // Perform Database Updates
-    dbConnector dbConnectorInstance = new dbConnector(); // Create instance
-    try (Connection connect = dbConnectorInstance.getConnection()) { // Get connection
+// Debug output
+System.out.println("carId: " + carId);
+System.out.println("carName: " + carName);
+System.out.println("carModel: " + carModel);
+System.out.println("feeAmount: " + feeAmount);
+System.out.println("userId: " + userId);
+System.out.println("licenseNo: " + licenseNo);
+System.out.println("email: " + email);
+System.out.println("fname: " + fname);
+System.out.println("lname: " + lname);
 
-        // Example: Update car status
-        String updateCarStatusSQL = "UPDATE tbl_cars SET c_status = 'Unavailable' WHERE c_id = ?";
-        try (PreparedStatement updateCarStatusStmt = connect.prepareStatement(updateCarStatusSQL)) {
-            updateCarStatusStmt.setString(1, carId);
-            updateCarStatusStmt.executeUpdate();
-        }
+if (carId.isEmpty() || carName.isEmpty() || carModel.isEmpty() || feeAmount.isEmpty()
+        || userId.isEmpty() || licenseNo.isEmpty() || fname.isEmpty() || lname.isEmpty()) {
+    JOptionPane.showMessageDialog(this, "Please complete all fields.");
+    return;
+}
 
-        // Example: Insert transaction record
-        String insertTransactionSQL = "INSERT INTO transactions (c_id, c_name, c_model, fee_amount, transaction_date) VALUES (?, ?, ?, ?, NOW())";
-        try (PreparedStatement insertTransactionStmt = connect.prepareStatement(insertTransactionSQL)) {
-            insertTransactionStmt.setString(1, carId);
-            insertTransactionStmt.setString(2, carName);
-            insertTransactionStmt.setString(3, carModel);
-            insertTransactionStmt.setString(4, feeAmount);
-            insertTransactionStmt.executeUpdate();
-        }
+try (Connection connect = new dbConnector().getConnection()) {
 
-        // Clear the text area
-        area.setText("");
-       
-         
-        // Display confirmation message
-        JOptionPane.showMessageDialog(this, "Transaction completed successfully!");
+    // Set car to unavailable
+    String updateSQL = "UPDATE tbl_cars SET c_status = 'Unavailable' WHERE c_id = ?";
+    try (PreparedStatement ps = connect.prepareStatement(updateSQL)) {
+        ps.setString(1, carId);
+        ps.executeUpdate();
+    }
 
-         
-    } catch (SQLException ex) {
-        JOptionPane.showMessageDialog(this, "Error completing transaction: " + ex.getMessage());
-        ex.printStackTrace();
-    }        // TODO add your handling code here:
+    // Insert transaction
+    String insertSQL = "INSERT INTO transactions " +
+            "(c_id, u_id, c_name, c_model, fee_amount, transaction_date, `License No.`, email, u_fname, u_lname) " +
+            "VALUES (?, ?, ?, ?, ?, NOW(), ?, ?, ?, ?)";
+    try (PreparedStatement ps = connect.prepareStatement(insertSQL)) {
+        ps.setString(1, carId);
+        ps.setString(2, userId);
+        ps.setString(3, carName);
+        ps.setString(4, carModel);
+        ps.setString(5, feeAmount);
+        ps.setString(6, licenseNo);
+        ps.setString(7, email);
+        ps.setString(8, fname);
+        ps.setString(9, lname);
+        ps.executeUpdate();
+    }
+
+    // Receipt
+    area.setText("*********************************************\n");
+    area.append("*              Car Rental Receipt           *\n");
+    area.append("*********************************************\n");
+    area.append("Date: " + new java.util.Date().toString() + "\n\n");
+    area.append("Car ID: " + carId + "\n");
+    area.append("Car Name: " + carName + "\n");
+    area.append("Car Model: " + carModel + "\n");
+    area.append("Fee Amount: ₱" + feeAmount + "\n");
+    area.append("License No.: " + licenseNo + "\n");
+    area.append("Customer Email: " + email + "\n");
+    area.append("Customer Name: " + fname + " " + lname + "\n");
+
+    JOptionPane.showMessageDialog(this, "Transaction completed successfully!");
+
+} catch (SQLException ex) {
+    JOptionPane.showMessageDialog(this, "Error: " + ex.getMessage());
+    ex.printStackTrace();
+}
+
+      // TODO add your handling code here:
     }//GEN-LAST:event_doneButtonActionPerformed
 
     /**
@@ -435,15 +474,21 @@ public class tranSactions extends javax.swing.JFrame {
         }
         //</editor-fold>
         //</editor-fold>
-        //</editor-fold>
+        //</editor-fold>a
         //</editor-fold>
 
         /* Create and display the form */
-        java.awt.EventQueue.invokeLater(new Runnable() {
-            public void run() {
-                new tranSactions().setVisible(true);
-            }
-        });
+            java.awt.EventQueue.invokeLater(new Runnable() {
+                public void run() {
+                 String userId = "123";
+        String carId = "9";
+        String carName = "Car 9";
+        String carModel = "Model C";
+        String feeAmount = "45000.00";
+
+        new tranSactions(userId, carId, carName, carModel, feeAmount).setVisible(true);
+                }
+            });
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
@@ -452,6 +497,8 @@ public class tranSactions extends javax.swing.JFrame {
     public javax.swing.JTextField cm;
     public javax.swing.JTextField cn;
     private javax.swing.JButton doneButton;
+    private javax.swing.JTextField em;
+    private javax.swing.JTextField fn;
     public javax.swing.JTextField fs;
     public javax.swing.JButton jButton1;
     public javax.swing.JButton jButton2;
@@ -459,12 +506,17 @@ public class tranSactions extends javax.swing.JFrame {
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel10;
     private javax.swing.JLabel jLabel11;
+    private javax.swing.JLabel jLabel12;
+    private javax.swing.JLabel jLabel13;
+    private javax.swing.JLabel jLabel14;
+    private javax.swing.JLabel jLabel15;
     private javax.swing.JLabel jLabel2;
     private javax.swing.JLabel jLabel3;
     private javax.swing.JLabel jLabel4;
     private javax.swing.JLabel jLabel5;
     private javax.swing.JLabel jLabel6;
     private javax.swing.JLabel jLabel7;
+    private javax.swing.JLabel jLabel8;
     private javax.swing.JLabel jLabel9;
     private javax.swing.JPanel jPanel1;
     private javax.swing.JPanel jPanel2;
@@ -472,5 +524,8 @@ public class tranSactions extends javax.swing.JFrame {
     private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JScrollPane jScrollPane2;
     private javax.swing.JTable jTable1;
+    private javax.swing.JTextField license;
+    private javax.swing.JTextField ln;
+    public javax.swing.JTextField uid;
     // End of variables declaration//GEN-END:variables
 }

@@ -22,13 +22,14 @@ import net.proteanit.sql.DbUtils;
  * @author Bentastic
  */
 public final class customerForm extends javax.swing.JFrame {
-
+ private String loggedInUserId;
     /**
      * Creates new form adminDashboard
      */
-    public customerForm() {
+    public customerForm(String userId) {
         initComponents();
         displayData();
+        this.loggedInUserId = userId;
     }
 
        public void displayData() {
@@ -44,6 +45,11 @@ public final class customerForm extends javax.swing.JFrame {
     } catch (SQLException ex) {
         JOptionPane.showMessageDialog(this, "Error: " + ex.getMessage());
     }
+}
+
+       public void setLoggedInUserId(String userId) {
+    this.loggedInUserId = userId;
+    // maybe call displayData() again if needed
 }
 
     
@@ -211,68 +217,59 @@ public final class customerForm extends javax.swing.JFrame {
     }//GEN-LAST:event_jButton5ActionPerformed
 
     private void jButton4ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton4ActionPerformed
-       int rowIndex = oTable.getSelectedRow();
-    if (rowIndex < 0) {
-        JOptionPane.showMessageDialog(null, "Please select an item!");
-    } else {
-        TableModel model = oTable.getModel();
-        tranSactions of = new tranSactions();
-        of.cid.setText(model.getValueAt(rowIndex, 0).toString());
-        of.cn.setText(model.getValueAt(rowIndex, 1).toString());
-        of.cm.setText(model.getValueAt(rowIndex, 2).toString());
-        of.fs.setText(model.getValueAt(rowIndex, 3).toString());
-        of.setVisible(true);
-        this.dispose();
-        
-        
-        int result = JOptionPane.showConfirmDialog(null, "Proceed with this car?", "Confirm", JOptionPane.YES_NO_OPTION);
-        if(result == JOptionPane.YES_OPTION){
-    // open tranSactions
-     }
+        int rowIndex = oTable.getSelectedRow();
+   if (rowIndex < 0) {
+       JOptionPane.showMessageDialog(null, "Please select an item!");
+       return;
+   }
+
+   int result = JOptionPane.showConfirmDialog(null, "Proceed with this car?", "Confirm", JOptionPane.YES_NO_OPTION);
+   if (result == JOptionPane.YES_OPTION) {
+       TableModel model = oTable.getModel();
+       tranSactions tx = new tranSactions(
+    loggedInUserId,
+    model.getValueAt(rowIndex, 0).toString(), // carId
+    model.getValueAt(rowIndex, 1).toString(), // carName
+    model.getValueAt(rowIndex, 2).toString(), // carModel
+    model.getValueAt(rowIndex, 3).toString()  // feeAmount
+);
+
+
+       tx.setUserId(loggedInUserId);
+
+       tx.setVisible(true);
+       this.dispose();
+
+
     
     }//GEN-LAST:event_jButton4ActionPerformed
     }
     /**
      * @param args the command line arguments
      */
-    public static void main(String args[]) {
-        /* Set the Nimbus look and feel */
-        //<editor-fold defaultstate="collapsed" desc=" Look and feel setting code (optional) ">
-        /* If Nimbus (introduced in Java SE 6) is not available, stay with the default look and feel.
-         * For details see http://download.oracle.com/javase/tutorial/uiswing/lookandfeel/plaf.html 
-         */
-        try {
-            for (javax.swing.UIManager.LookAndFeelInfo info : javax.swing.UIManager.getInstalledLookAndFeels()) {
-                if ("Nimbus".equals(info.getName())) {
-                    javax.swing.UIManager.setLookAndFeel(info.getClassName());
-                    break;
-                }
-            }
-        } catch (ClassNotFoundException ex) {
-            java.util.logging.Logger.getLogger(customerForm.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
-        } catch (InstantiationException ex) {
-            java.util.logging.Logger.getLogger(customerForm.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
-        } catch (IllegalAccessException ex) {
-            java.util.logging.Logger.getLogger(customerForm.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
-        } catch (javax.swing.UnsupportedLookAndFeelException ex) {
-            java.util.logging.Logger.getLogger(customerForm.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
-        }
-        //</editor-fold>
-        //</editor-fold>
-        //</editor-fold>
-        //</editor-fold>
-        //</editor-fold>
-        //</editor-fold>
-        //</editor-fold>
-        //</editor-fold>
+   public static void main(String args[]) {
+    String userId = "123"; // Simulated login user ID
 
-        /* Create and display the form */
-        java.awt.EventQueue.invokeLater(new Runnable() {
-            public void run() {
-                new customerForm().setVisible(true);
+    /* Set the Nimbus look and feel */
+    try {
+        for (javax.swing.UIManager.LookAndFeelInfo info : javax.swing.UIManager.getInstalledLookAndFeels()) {
+            if ("Nimbus".equals(info.getName())) {
+                javax.swing.UIManager.setLookAndFeel(info.getClassName());
+                break;
             }
-        });
+        }
+    } catch (Exception ex) {
+        java.util.logging.Logger.getLogger(customerForm.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
     }
+
+    // Create and display the form with userId
+    java.awt.EventQueue.invokeLater(new Runnable() {
+        public void run() {
+            new customerForm(userId).setVisible(true);
+        }
+    });
+}
+
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton jButton4;
